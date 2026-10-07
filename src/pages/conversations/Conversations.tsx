@@ -22,6 +22,7 @@ import {
 } from "../../services/igMessage";
 import { getFacebookConversations, sendFacebookMessage, markFacebookSeen } from "../../services/fbMessage";
 import { getWebConversations, sendWebMessage, markWebConversationRead } from "../../services/chatWidget";
+import { getConversationStats, ConversationStatsResponse } from "../../services/conversationStats";
 import { uploadChatAttachment } from "../../services/conversationAttachment";
 import { useSocialCredentials } from "../../hooks/useSocial";
 import { useLocationContext, LOCATION_COLORS } from "../../providers/LocationContext";
@@ -457,7 +458,7 @@ const Conversations = () => {
             patientLocation: "",
             platform: payload.platform as any,
             status: "active",
-            isOnline: true,
+            isOnline: false,
             lastMessage: msgText,
             lastMessageTime: "Just now",
             lastMessageTimestamp: payload.message.createdAt || Date.now(),
@@ -540,7 +541,7 @@ const Conversations = () => {
             patientLocation: "",
             platform: "web",
             status: "active",
-            isOnline: true,
+            isOnline: false,
             lastMessage: msgText,
             lastMessageTime: "Just now",
             lastMessageTimestamp: payload.message.createdAt || Date.now(),
@@ -783,11 +784,54 @@ const Conversations = () => {
     }
   }, [selectedConversationId, selectedConversation?.messages?.length, queryClient]);
 
+  const [backendStats, setBackendStats] = useState<ConversationStatsResponse | null>(null);
+
+  const fetchStats = useCallback(async () => {
+    try {
+      let locationParam: string | undefined = undefined;
+      if (contextLocations && Array.isArray(contextLocations) && contextLocations.length > 0) {
+        if (selectedLocations.length > 0 && selectedLocations.length < contextLocations.length) {
+          const matched = contextLocations.filter(
+            (l) => selectedLocations.includes(l.name) || (l._id && selectedLocations.includes(l._id))
+          );
+          const ids = matched.map((l) => l._id || l.name).filter(Boolean);
+          if (ids.length > 0) {
+            locationParam = ids.join(",");
+          }
+        }
+      } else if (selectedLocations.length === 1) {
+        locationParam = selectedLocations[0];
+      }
+
+      const res = await getConversationStats({
+        platform: selectedPlatform,
+        locationId: locationParam,
+        filter: filterDropdown && filterDropdown !== "all" ? filterDropdown : undefined,
+        search: debouncedSearch.trim() || undefined,
+      });
+      if (res) {
+        setBackendStats(res);
+      }
+    } catch (err) {
+      console.warn("Failed to fetch backend conversation stats:", err);
+    }
+  }, [selectedPlatform, selectedLocations, filterDropdown, debouncedSearch, contextLocations]);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats, conversations]);
+
   const stats = useMemo<StatCard[]>(() => {
-    const totalCount = locationFilteredConversations.length;
-    const activeCount = locationFilteredConversations.filter((c) => c.status === "active").length;
-    const unreadCount = locationFilteredConversations.reduce((acc, c) => acc + c.unreadCount, 0);
-    const conversionRate = totalCount > 0 ? Math.round((activeCount / totalCount) * 100) : 0;
+    const totalCount = backendStats ? backendStats.totalCount : locationFilteredConversations.length;
+    const activeCount = backendStats ? backendStats.activeCount : locationFilteredConversations.filter((c) => c.status === "active").length;
+    const unreadCount = backendStats ? backendStats.unreadCount : locationFilteredConversations.reduce((acc, c) => acc + c.unreadCount, 0);
+    const conversionRate = backendStats ? backendStats.conversionRate : (totalCount > 0 ? Math.round((activeCount / totalCount) * 100) : 0);
+    const avgResponseTime = backendStats ? backendStats.avgResponseTime : (totalCount > 0 ? "< 2m" : "0m");
+    const activeSub = backendStats?.activeSubheading || (activeCount > 0 ? "Active patient chats" : "No active chats");
+    const unreadSub = backendStats?.unreadSubheading || (unreadCount > 0 ? `${unreadCount} unread message(s)` : "All messages read");
+    const avgResponseSub = backendStats?.avgResponseTimeSubheading || (totalCount > 0 ? "Fast response rate" : "No recent activity");
+    const convSub = backendStats?.conversionRateSubheading || "Patient response rate";
+
     return [
       {
         heading: "Active Conversations",
@@ -795,7 +839,7 @@ const Conversations = () => {
         icon: <LuMessageSquare className="text-blue-600 dark:text-blue-400" />,
         subheading: (
           <span className="text-xs text-gray-500 dark:text-foreground/50 font-normal">
-            {activeCount > 0 ? "Active patient chats" : "No active chats"}
+            {activeSub}
           </span>
         ),
       },
@@ -807,19 +851,19 @@ const Conversations = () => {
         ),
         subheading: (
           <span className="text-xs text-gray-500 dark:text-foreground/50 font-normal">
-            {unreadCount > 0 ? `${unreadCount} unread message(s)` : "All messages read"}
+            {unreadSub}
           </span>
         ),
       },
       {
         heading: "Avg Response Time",
-        value: totalCount > 0 ? "< 2m" : "0m",
+        value: avgResponseTime,
         icon: (
           <HiOutlineClock className="text-emerald-600 dark:text-emerald-400" />
         ),
         subheading: (
           <span className="text-xs text-gray-500 dark:text-foreground/50 font-normal">
-            {totalCount > 0 ? "Fast response rate" : "No recent activity"}
+            {avgResponseSub}
           </span>
         ),
       },
@@ -831,12 +875,12 @@ const Conversations = () => {
         ),
         subheading: (
           <span className="text-xs text-gray-500 dark:text-foreground/50 font-normal">
-            Patient response rate
+            {convSub}
           </span>
         ),
       },
     ];
-  }, [locationFilteredConversations]);
+  }, [backendStats, locationFilteredConversations]);
 
   const handleSendMessage = async () => {
     const trimmedText = messageInput.trim();
