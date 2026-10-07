@@ -18,7 +18,6 @@ export default function ConnectedPhoneNumbersList({
   onSelectReleaseNumber,
 }: ConnectedPhoneNumbersListProps) {
   const { getLocationColor, locations } = useLocationContext();
-
   return (
     <Card className="shadow-none border border-foreground/10 bg-background rounded-2xl p-5">
       <CardBody className="p-0 flex flex-col gap-4">
@@ -55,7 +54,6 @@ export default function ConnectedPhoneNumbersList({
               );
               const locName = num.locationName || matchedLoc?.name;
               const locColor = matchedLoc?.color || getLocationColor(num.locationId || locName);
-
               return (
                 <div
                   key={num.id}

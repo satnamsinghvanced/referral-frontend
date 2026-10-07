@@ -5,7 +5,7 @@ import { subscribeToEvent, unsubscribeFromEvent } from "../../services/sse";
 import { Link, NavLink, useLocation } from "react-router";
 import { Tooltip } from "@heroui/react";
 import { LuBuilding2, LuCalendar, LuDollarSign, LuLogOut, LuMessageSquare, LuQrCode, LuTarget, LuUsers, LuVideo } from "react-icons/lu";
-import { FiFileText, FiHome } from "react-icons/fi";
+import { FiFileText, FiHome, FiPhone } from "react-icons/fi";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import clsx from "clsx";
 import { MdOutlineModeComment } from "react-icons/md";
@@ -209,6 +209,14 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         // requiredPermission: ["Manage Media Management", "Manage Media"],
       },
       {
+        name: "Phone Service Integration",
+        icon: FiPhone,
+        href: "/phone-service",
+        stats: undefined,
+        color: "bg-blue-100 dark:bg-blue-900/40",
+        requiredPlanAccess: "sms_marketing",
+      },
+      {
         name: "Integrations",
         icon: HiOutlineLightningBolt,
         href: "/integrations",
@@ -216,7 +224,6 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         color: "bg-blue-400 dark:bg-blue-900/40",
         // requiredPermission: ["Manage Integrations"],
       },
-
       {
         name: "Settings",
         icon: HiOutlineCog,
@@ -251,7 +258,6 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
     }
     return hasPermission(route.requiredPermission);
   });
-
   const isImpersonating = !!localStorage.getItem("impersonated_client");
   return (
     <>
@@ -382,7 +388,6 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
               );
             })}
           </ul>
-
           <div className="p-1 border-t border-foreground/10 mt-auto bg-background shrink-0">
             {isMiniSidebarOpen ? (
               <button

@@ -53,6 +53,9 @@ const MediaManagement = React.lazy(
 const Integrations = React.lazy(
   () => import("./pages/integrations/Integrations"),
 );
+const PhoneService = React.lazy(
+  () => import("./pages/phone-service/PhoneService"),
+);
 const ChatWidgetBuilder = React.lazy(
   () => import("./pages/chat-widget/ChatWidgetBuilder"),
 );
@@ -312,6 +315,14 @@ function AppRoutes() {
               <PermissionGuard permissions={["Manage Call Tracking"]}>
                 <CallTracking />
               </PermissionGuard>
+            </PlanGuard>
+          ),
+        },
+        {
+          path: "phone-service",
+          element: (
+            <PlanGuard requiredAccess="sms_marketing">
+              <PhoneService />
             </PlanGuard>
           ),
         },
