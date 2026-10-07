@@ -231,11 +231,6 @@ export default function ChatArea({
             </DropdownTrigger>
             <DropdownMenu onAction={(key) => onDropdownAction?.(key as string, selectedConversation)}>
               <DropdownItem key="view">View Profile</DropdownItem>
-              <DropdownItem
-                key={selectedConversation.status === "archived" ? "unarchive" : "archive"}
-              >
-                {selectedConversation.status === "archived" ? "Unarchive" : "Archive"}
-              </DropdownItem>
               <DropdownItem key="block" className="text-danger">
                 Block
               </DropdownItem>

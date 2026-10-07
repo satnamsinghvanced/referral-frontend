@@ -67,6 +67,26 @@ export const sendLeadAppointment = async ({ id, appointmentType, date, time, not
   return response.data;
 };
 
+export const updateLeadAppointment = async ({ id, appointmentType, date, time, notes, sendReminder = true }: {
+  id: string;
+  appointmentType: string;
+  date: string;
+  time: string;
+  notes?: string;
+  sendReminder?: boolean;
+}): Promise<any> => {
+  const response = await axios.put(`/lead/update-schedule/${id}`, {
+    appointmentType,
+    date,
+    time,
+    notes,
+    sendReminder,
+  });
+  return response.data;
+};
+
+export const updateSchedule = updateLeadAppointment;
+
 export const sendLeadQuote = async ({
   id,
   lineItems,

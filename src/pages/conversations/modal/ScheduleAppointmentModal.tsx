@@ -9,7 +9,7 @@ import * as Yup from "yup";
 import { parseStringTime } from "../../../utils/parseStringTime";
 import { queryClient } from "../../../providers/QueryProvider";
 import { getLead } from "../../../services/leadPipeline";
-
+ 
 interface ScheduleAppointmentModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -160,11 +160,13 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead, onAppointmentSchedule
       }
       
       let updatedLeadData: any = null;
-      if (lead.leadId) {
+      const targetId = lead.leadId || lead.id || (lead as any)._id;
+      if (targetId) {
         try {
-          const { sendLeadAppointment } = await import("../../../services/leadPipeline");
-          const res = await sendLeadAppointment({
-            id: lead.leadId,
+          const { sendLeadAppointment, updateLeadAppointment } = await import("../../../services/leadPipeline");
+          const apiFunc = isAlreadyScheduled ? updateLeadAppointment : sendLeadAppointment;
+          const res = await apiFunc({
+            id: targetId,
             appointmentType: values.appointmentType,
             date: dateStr,
             time: timeStr,
@@ -235,7 +237,7 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead, onAppointmentSchedule
             <ModalBody className="px-5 py-4 gap-4">
               <div>
                 <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
-                  Appointment Type
+                  Appointment Type <span className="text-red-500">*</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   {APPOINTMENT_TYPES.map((type) => (
@@ -255,7 +257,7 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead, onAppointmentSchedule
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
-                    Date
+                    Date <span className="text-red-500">*</span>
                   </label>
                   <div className="border border-slate-200 dark:border-default-200 rounded-lg px-3 flex items-center h-9">
                     <DatePicker
@@ -293,7 +295,7 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead, onAppointmentSchedule
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
-                    Time
+                    Time <span className="text-red-500">*</span>
                   </label>
                   <div className="border border-slate-200 dark:border-default-200 rounded-lg px-2 sm:px-3 min-h-9 flex items-center gap-2 overflow-hidden">
                     <HiOutlineClock className="w-4 h-4 flex-none text-slate-400" />

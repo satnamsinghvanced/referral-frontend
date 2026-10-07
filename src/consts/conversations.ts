@@ -9,7 +9,6 @@ export const CONVERSATION_FILTERS = [
   { key: "all", label: "All" },
   { key: "unread", label: "Unread" },
   { key: "starred", label: "Starred" },
-  { key: "archived", label: "Archived" },
 ];
 
 export const CONVERSATION_TAGS = [
