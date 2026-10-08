@@ -12,7 +12,6 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ isMiniSidebarOpen }
   const [isOpen, setIsOpen] = useState(false);
   const { locations, selectedLocation, setSelectedLocation, isLoading, getLocationColor } =
     useLocationContext();
-
   if (isLoading) {
     return (
       <div className="px-3 py-2">
@@ -20,13 +19,10 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ isMiniSidebarOpen }
       </div>
     );
   }
-
   if (!locations || locations.length === 0) {
     return null;
   }
-
   const selectedColor = getLocationColor(selectedLocation?._id);
-
   const formatAddress = (loc: Location) => {
     if (!loc.address) return "";
     const parts = [loc.address.street, loc.address.city, loc.address.state, loc.address.zipcode].filter(
@@ -34,9 +30,7 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ isMiniSidebarOpen }
     );
     return parts.join(", ");
   };
-
   const addressText = selectedLocation ? formatAddress(selectedLocation) : "";
-
   if (locations.length === 1) {
     return (
       <div className="px-3 py-2 border-b border-foreground/10">
@@ -75,7 +69,6 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ isMiniSidebarOpen }
       </div>
     );
   }
-
   return (
     <div className="px-3 py-2 border-b border-foreground/10">
       <Popover
@@ -156,9 +149,9 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ isMiniSidebarOpen }
                     style={
                       isSelected
                         ? {
-                            backgroundColor: `${locColor}18`,
-                            color: locColor,
-                          }
+                          backgroundColor: `${locColor}18`,
+                          color: locColor,
+                        }
                         : undefined
                     }
                   >

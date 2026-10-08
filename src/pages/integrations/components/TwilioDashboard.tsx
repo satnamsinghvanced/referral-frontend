@@ -10,9 +10,12 @@ import { useFetchA2PRegistration } from "../../../hooks/integrations/useTwilio";
 import { PhoneNumber } from "./a2p/types";
 import A2PRegistrationSection from "./a2p/A2PRegistrationSection";
 import TwilioOverviewHeader from "./twilio/TwilioOverviewHeader";
-import ConnectedPhoneNumbersList from "./twilio/ConnectedPhoneNumbersList";
+import TwilioPipelineOverview from "./twilio/TwilioPipelineOverview";
+import PhoneNumbersCallRouting from "./twilio/PhoneNumbersCallRouting";
+import RecordedCallsAiLeadCapture from "./twilio/RecordedCallsAiLeadCapture";
 import ReleaseNumberModal from "./twilio/ReleaseNumberModal";
 import { useTwilioStripeListener } from "./twilio/useTwilioStripeListener";
+import { MOCK_PHONE_ROUTING_NUMBERS, MOCK_RECORDED_CALLS } from "../../phone-service/mockData";
 
 interface TwilioDashboardProps {
   twilioConfig?: TwilioConfigResponse | undefined;
@@ -70,6 +73,7 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
       : registrationRes
     : null;
   const [prevStatus, setPrevStatus] = useState<string | null>(null);
+
   useEffect(() => {
     if (registration?.status) {
       if (prevStatus === "pending" && registration.status === "approved") {
@@ -84,11 +88,9 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
       setPrevStatus(null);
     }
   }, [registration?.status, prevStatus]);
-
   const handlePurchaseSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ["twilio"] });
   };
-
   const handleConfirmRelease = async () => {
     if (!numberToRelease) return;
     setIsReleasing(true);
@@ -118,7 +120,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
       setNumberToRelease(null);
     }
   };
-
   const handleRefresh = async () => {
     if (isRefreshing) return;
     setIsRefreshing(true);
@@ -131,7 +132,7 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
       await new Promise((res) => setTimeout(res, 800));
       addToast({
         title: "Syncing status",
-        description: "Twilio numbers and status successfully refreshed.",
+        description: "Phone Service numbers and status successfully refreshed.",
         color: "success",
       });
     } catch (err) {
@@ -140,34 +141,45 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
       setIsRefreshing(false);
     }
   };
-
+  const activeCount = twilioConfig ? phoneNumbers.length : MOCK_PHONE_ROUTING_NUMBERS.length;
+  const recordedCount = twilioConfig ? (minutesLimit > 0 ? MOCK_RECORDED_CALLS.length : 0) : MOCK_RECORDED_CALLS.length;
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-col gap-5 w-full">
       <TwilioOverviewHeader
-        activeNumbersCount={phoneNumbers.length}
+        activeNumbersCount={activeCount}
         planName={planName}
         minutesUsed={minutesUsed}
         minutesLimit={minutesLimit}
         messagesUsed={messagesUsed}
         messagesLimit={messagesLimit}
+        recordedCallsCount={recordedCount}
         onOpenManagePlans={() => setIsAddCreditsOpen(true)}
         onOpenPurchaseNumber={() => setIsPurchaseNumberOpen(true)}
       />
-
+      <TwilioPipelineOverview />
       <A2PRegistrationSection
         registration={registration}
         phoneNumbers={phoneNumbers}
         isA2PConfigLoading={isA2PConfigLoading}
         onOpenRegistrationModal={() => setIsA2PRegistrationOpen(true)}
       />
-
-      <ConnectedPhoneNumbersList
-        phoneNumbers={phoneNumbers}
-        isRefreshing={isRefreshing}
+      <PhoneNumbersCallRouting
+        initialNumbers={MOCK_PHONE_ROUTING_NUMBERS}
         onRefresh={handleRefresh}
-        onSelectReleaseNumber={(num) => setNumberToRelease(num)}
+        onDeleteNumber={(id) => {
+          const numToDelete = phoneNumbers.find((p) => p.id === id);
+          if (numToDelete) {
+            setNumberToRelease(numToDelete);
+          } else {
+            addToast({
+              title: "Demo Action",
+              description: "Released phone number in demo mode.",
+              color: "success",
+            });
+          }
+        }}
       />
-
+      <RecordedCallsAiLeadCapture initialCalls={MOCK_RECORDED_CALLS} />
       <TwilioAddCreditsModal
         isOpen={isAddCreditsOpen}
         onClose={() => setIsAddCreditsOpen(false)}
@@ -177,7 +189,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
         planExpiresAt={planExpiresAt}
         onAddCredits={() => { }}
       />
-
       <TwilioPurchaseNumberModal
         isOpen={isPurchaseNumberOpen}
         onClose={() => setIsPurchaseNumberOpen(false)}
@@ -186,13 +197,11 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
         phoneNumbersCount={phoneNumbers.length}
         minutesLimit={minutesLimit}
       />
-
       <TwilioA2PRegistrationModal
         isOpen={isA2PRegistrationOpen}
         onClose={() => setIsA2PRegistrationOpen(false)}
         phoneNumbers={phoneNumbers}
       />
-
       <ReleaseNumberModal
         numberToRelease={numberToRelease}
         isReleasing={isReleasing}

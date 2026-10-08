@@ -51,7 +51,6 @@ import TwilioConfigurationModal from "./modal/TwilioConfigurationModal";
 import GoogleIntegrationSelectorModal from "./modal/GoogleIntegrationSelectorModal";
 import GoogleCalendarConfigModal from "./modal/GoogleCalendarConfigModal";
 import Webhooks from "./webhooks/Webhooks";
-import TwilioDashboard from "./components/TwilioDashboard";
 import { useLocationContext } from "../../providers/LocationContext";
 
 function Integrations() {
@@ -774,11 +773,7 @@ function Integrations() {
     <>
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
-          {planAccess?.sms_marketing !== false && (
-            <div id="integration-twilio">
-              <TwilioDashboard twilioConfig={twilioConfig} />
-            </div>
-          )}
+
           <Card className="shadow-none border border-foreground/10 rounded-xl p-4 bg-background overflow-hidden">
             <CardHeader className="p-0 pb-5">
               <h4 className="font-medium text-sm text-foreground">

@@ -23,18 +23,15 @@ const Layout = () => {
       return null;
     }
   })();
-
   const practiceName =
     impersonatedData?.practiceName ||
     impersonatedData?.name ||
     (user as any)?.name ||
     user?.email ||
     "Client Account";
-
   const { data: billingData, isLoading: isBillingLoading } = useBilling();
   const { isLoading: isPermissionsLoading } = useRolePermissions();
   const isInitialLoading = (isBillingLoading && !billingData) || isPermissionsLoading;
-
   const getInitialMini = () => {
     const storedValue = localStorage.getItem("isMiniSidebarOpen");
     if (storedValue !== null) {
@@ -111,7 +108,6 @@ const Layout = () => {
     }
     window.location.href = "/admin";
   };
-
   if (isInitialLoading) {
     return (
       <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background transition-opacity duration-300">
@@ -127,7 +123,6 @@ const Layout = () => {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen flex flex-col">
       {isImpersonating && (
@@ -163,7 +158,6 @@ const Layout = () => {
           </div>
         </div>
       )}
-
       <div
         className={`${!isMiniSidebarOpen ? "lg:pl-18" : "lg:pl-[250px]"
           } transition-all flex-1`}
