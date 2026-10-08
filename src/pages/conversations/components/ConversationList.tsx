@@ -3,7 +3,7 @@ import { Input, Select, SelectItem, Button, Spinner } from "@heroui/react";
 import { HiOutlineSearch, HiOutlineLightningBolt } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { CONVERSATION_PLATFORMS, CONVERSATION_TAGS, Conversation } from "../../../consts/conversations";
-import { getPlatformIcon, getPlatformChipStyle, getAvatarColor, getInitials, formatConversationTime } from "../utils";
+import { getPlatformIcon, getPlatformChipStyle, getAvatarColor, getInitials, formatConversationTime, sanitizeName } from "../utils";
 import { getConversationLocation, getLocationTheme } from "../Conversations";
 import { useLocationContext } from "../../../providers/LocationContext";
 
@@ -226,7 +226,7 @@ export default function ConversationList({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <h4 className="text-xs font-bold text-foreground truncate">
-                      {conv.patientName}
+                      {sanitizeName(conv.patientName) || conv.patientName}
                     </h4>
                     <span className="text-[10px] text-gray-400 dark:text-foreground/40 flex-shrink-0 ml-2">
                       {formatConversationTime(conv.lastMessageTime, conv.lastMessageTimestamp)}
