@@ -286,12 +286,6 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                     {statusInfo.label}
                   </span>
                 </div>
-                <div className="bg-emerald-50 dark:bg-emerald-950/40 rounded-xl p-3 flex-1 flex flex-col items-center justify-center text-center min-w-0">
-                  <span className="text-[11px] font-medium text-slate-400 dark:text-slate-400 mb-1">Lead Score</span>
-                  <span className="text-[22px] font-extrabold text-emerald-500 dark:text-emerald-400 leading-none">
-                    0
-                  </span>
-                </div>
                 <div className="bg-purple-50 dark:bg-purple-950/40 rounded-xl p-3 flex-1 flex flex-col items-center justify-center text-center min-w-0">
                   <span className="text-[11px] font-medium text-slate-400 dark:text-slate-400 mb-1">Est. Value</span>
                   <span className="text-[18px] font-extrabold text-purple-500 dark:text-purple-400 leading-none">

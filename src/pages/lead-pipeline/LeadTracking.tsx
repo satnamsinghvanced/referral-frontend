@@ -680,9 +680,7 @@ const LeadTracking = () => {
                     <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
                       Value
                     </th>
-                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
-                      Score
-                    </th>
+                   
                     <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
                       Response
                     </th>
@@ -766,14 +764,6 @@ const LeadTracking = () => {
                         <td className="py-4 px-6">
                           <div className="font-bold text-foreground">
                             ${(lead.estimatedValue || 0).toLocaleString()}
-                          </div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <div className="flex items-center gap-1">
-                            <HiStar className="text-yellow-400 size-4" />
-                            <span className="font-bold text-gray-600 dark:text-foreground/60">
-                              {lead.score || 0}
-                            </span>
                           </div>
                         </td>
                         <td className="py-4 px-6">

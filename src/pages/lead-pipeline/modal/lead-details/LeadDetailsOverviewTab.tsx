@@ -39,18 +39,16 @@ const LeadDetailsOverviewTab = ({
   const { locations, getLocationColor } = useLocationContext();
 
   const locationOptions = useMemo(() => {
-    return [
-      { id: "unassigned", name: "Not Assigned", color: "#9ca3af", address: "No location assigned" },
-      ...(locations || []).map((loc, index) => ({
-        id: loc._id,
-        name: loc.name,
-        color: getLocationColor(loc._id, index),
-        address: [loc.address?.city, loc.address?.state].filter(Boolean).join(", "),
-      })),
-    ];
+    return (locations || []).map((loc, index) => ({
+      id: loc._id,
+      name: loc.name,
+      color: getLocationColor(loc._id, index),
+      address: [loc.address?.city, loc.address?.state].filter(Boolean).join(", "),
+    }));
   }, [locations, getLocationColor]);
 
   const handleSaveContact = async () => {
+    if (locations && locations.length > 0 && !formik.values.locationId) return;
     await formik.handleSubmit();
     setIsEditingContact(false);
   };
@@ -152,6 +150,11 @@ const LeadDetailsOverviewTab = ({
                   startContent={<HiCheck className="size-3.5" />}
                   className="h-7 px-2.5 text-xs font-bold"
                   onPress={handleSaveContact}
+                  isDisabled={
+                    !formik.values.firstName?.trim() ||
+                    !formik.values.phone?.trim() ||
+                    Boolean(locations && locations.length > 0 && !formik.values.locationId)
+                  }
                 >
                   Save
                 </Button>
@@ -344,10 +347,14 @@ const LeadDetailsOverviewTab = ({
                     radius="sm"
                     variant="flat"
                     disableAnimation
-                    selectedKeys={formik.values.locationId ? [formik.values.locationId] : ["unassigned"]}
+                    isRequired
+                    disallowEmptySelection
+                    selectedKeys={formik.values.locationId ? [formik.values.locationId] : []}
                     onSelectionChange={(keys) => {
                       const selected = Array.from(keys)[0] as string;
-                      formik.setFieldValue("locationId", selected === "unassigned" ? "" : (selected || ""));
+                      if (selected) {
+                        formik.setFieldValue("locationId", selected);
+                      }
                     }}
                     renderValue={(items) => {
                       return items.map((item) => {
@@ -547,30 +554,7 @@ const LeadDetailsOverviewTab = ({
           </div>
         </div>
       </div>
-      <div className="lg:col-span-12">
-        <div className="p-4 border border-foreground/10 rounded-xl bg-content1/50 dark:bg-content1/20">
-          <div className="flex items-center gap-2 mb-4">
-            <HiOutlinePencil className="size-5 text-gray-400 dark:text-foreground/40" />
-            <h3 className="font-bold text-sm text-foreground">
-              Treatment Interest
-            </h3>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {lead.treatments?.map((t: string, i: number) => (
-              <Chip
-                key={i}
-                variant="flat"
-                size="sm"
-                className="bg-sky-50 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 font-bold px-3 border-none"
-              >
-                {t}
-              </Chip>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="lg:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-4 pb-4">
+      <div className="lg:col-span-12 grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
         <div className="p-4 border border-foreground/10 rounded-xl flex items-center gap-4 bg-content1/50 dark:bg-content1/20">
           <div className="p-3 bg-blue-50 dark:bg-blue-900/40 text-blue-500 dark:text-blue-400 rounded-xl">
             <HiOutlineClock className="size-6" />

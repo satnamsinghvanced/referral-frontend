@@ -49,6 +49,12 @@ const LeadDetailsModal = ({ isOpen, onOpenChange, lead, onDelete }: LeadDetailsM
   const [isDeletingNote, setIsDeletingNote] = useState(false);
 
   useEffect(() => {
+    setActiveTab("overview");
+    setNewNote("");
+    setSmsBody("");
+  }, [isOpen, lead?.id || lead?._id]);
+
+  useEffect(() => {
     const checkIntegrations = async () => {
       try {
         const twilioRes = (await axios.get(
@@ -143,7 +149,7 @@ const LeadDetailsModal = ({ isOpen, onOpenChange, lead, onDelete }: LeadDetailsM
             firstName: values.firstName?.trim(),
             lastName: values.lastName?.trim(),
             phone: values.phone?.trim(),
-            locationId: values.locationId || null,
+            ...(values.locationId ? { locationId: values.locationId } : {}),
             estimatedValue: Number(values.estimatedValue),
             assignedTo:
               values.assignedTo === "Unassigned" ||
