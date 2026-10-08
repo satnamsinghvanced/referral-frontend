@@ -56,17 +56,32 @@ export const getAvatarColor = (name: string) => {
     "bg-indigo-500",
     "bg-rose-500",
   ];
-  const idx = name.charCodeAt(0) % colors.length;
+  if (!name) return colors[0];
+  const cleaned = sanitizeName(name) || name;
+  const idx = (cleaned.charCodeAt(0) || 0) % colors.length;
   return colors[idx];
 };
 
-export const getInitials = (name: string) => {
+export const sanitizeName = (name: string): string => {
+  if (!name || typeof name !== "string") return "";
   return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+    .replace(/\p{Extended_Pictographic}/gu, "")
+    .replace(/[^a-zA-Z\s'.,-]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
+export const getInitials = (name: string): string => {
+  if (!name) return "";
+  const cleaned = sanitizeName(name) || name;
+  const parts = cleaned.trim().split(/\s+/).filter(Boolean);
+  const first = parts[0];
+  if (!first) return "";
+  if (parts.length === 1) return first.slice(0, 2).toUpperCase();
+  const last = parts[parts.length - 1];
+  const char1 = first.charAt(0);
+  const char2 = last ? last.charAt(0) : "";
+  return (char1 + char2).toUpperCase();
 };
 
 export const CHIP_COLORS: string[] = [

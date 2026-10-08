@@ -27,7 +27,7 @@ import {
 } from "react-icons/hi";
 import { LuSend } from "react-icons/lu";
 import { Conversation } from "../../../consts/conversations";
-import { getPlatformIcon, getPlatformLabel, getPlatformChipStyle, getAvatarColor, getInitials, formatDateLabel } from "../utils";
+import { getPlatformIcon, getPlatformLabel, getPlatformChipStyle, getAvatarColor, getInitials, formatDateLabel, sanitizeName } from "../utils";
 import { getConversationLocation, getLocationTheme } from "../Conversations";
 import { useLocationContext } from "../../../providers/LocationContext";
 import EmojiPicker from "./EmojiPicker";
@@ -164,7 +164,7 @@ export default function ChatArea({
           <div>
             <div className="flex items-center gap-1 sm:gap-2 flex-wrap sm:flex-nowrap">
               <h4 className="text-xs sm:text-sm font-bold text-foreground truncate max-w-[100px] sm:max-w-none">
-                {selectedConversation.patientName}
+                {sanitizeName(selectedConversation.patientName) || selectedConversation.patientName}
               </h4>
               <Chip
                 size="sm"

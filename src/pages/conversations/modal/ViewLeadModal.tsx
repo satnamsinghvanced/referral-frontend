@@ -15,6 +15,7 @@ import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 import { useLocationContext } from "../../../providers/LocationContext";
 import { Location } from "../../../types/common";
 import { EMAIL_REGEX } from "../../../consts/consts";
+import { sanitizeName } from "../utils";
 
 interface ViewLeadModalProps {
   isOpen: boolean;
@@ -48,9 +49,10 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
   useEffect(() => {
     if (lead && isOpen) {
       setErrors({});
-      const nameParts = lead.patientName.trim().split(/\s+/);
-      const fName = nameParts[0] || "";
-      const lName = nameParts.slice(1).join(" ") || "";
+      const cleanedFullName = sanitizeName(lead.patientName || "");
+      const nameParts = (cleanedFullName || lead.patientName || "").trim().split(/\s+/).filter(Boolean);
+      const fName = sanitizeName(nameParts[0] || "");
+      const lName = sanitizeName(nameParts.slice(1).join(" ") || "");
       setFirstName(fName);
       setLastName(lName);
       setEmail(lead.patientEmail || "");
@@ -93,10 +95,12 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
   if (!lead) return null;
 
   const handleSave = async () => {
+    const cleanFirst = sanitizeName(firstName);
+    const cleanLast = sanitizeName(lastName);
     const newErrors: { firstName?: string; email?: string; phone?: string } = {};
     const missingList: string[] = [];
 
-    if (!firstName.trim()) {
+    if (!cleanFirst.trim()) {
       newErrors.firstName = "First name is required";
       missingList.push("First name");
     }
@@ -142,8 +146,8 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
         const response = await updateLead({
           id: lead.leadId,
           data: {
-            firstName: firstName.trim(),
-            lastName: lastName.trim(),
+            firstName: cleanFirst,
+            lastName: cleanLast,
             email: email.trim().toLowerCase(),
             phone: phone.trim(),
             locationId: locIdToSave,
@@ -161,8 +165,8 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
         setIsEditing(false);
       } else {
         const response = await addLead({
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
+          firstName: cleanFirst,
+          lastName: cleanLast,
           email: email.trim().toLowerCase(),
           phone: phone.trim(),
           locationId: locIdToSave,
@@ -264,11 +268,11 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
             <div className="bg-[#0ea5e9] px-5 py-4 text-white">
               <div className="flex items-center gap-3">
                 <div className="w-11 h-11 rounded-full bg-white/25 flex items-center justify-center font-bold text-lg shrink-0">
-                  {firstName.charAt(0) || lead.patientName.charAt(0)}
+                  {firstName.charAt(0) || sanitizeName(lead.patientName).charAt(0) || "L"}
                 </div>
                 <div>
                   <h3 className="font-bold text-[16px] leading-tight text-white">
-                    {isEditing ? `${firstName} ${lastName}` : lead.patientName}
+                    {isEditing ? `${firstName} ${lastName}`.trim() || "Lead Profile" : (sanitizeName(lead.patientName) || lead.patientName)}
                   </h3>
                   <p className="text-white/85 text-[13px] mt-0.5">Lead Profile</p>
                 </div>
@@ -344,7 +348,8 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                         radius="md"
                         value={firstName}
                         onChange={(e) => {
-                          setFirstName(e.target.value);
+                          const cleaned = sanitizeName(e.target.value);
+                          setFirstName(cleaned);
                           if (errors.firstName) setErrors((prev) => ({ ...prev, firstName: undefined }));
                         }}
                         isInvalid={Boolean(errors.firstName)}
@@ -358,7 +363,7 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                         size="sm"
                         radius="md"
                         value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
+                        onChange={(e) => setLastName(sanitizeName(e.target.value))}
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-3">

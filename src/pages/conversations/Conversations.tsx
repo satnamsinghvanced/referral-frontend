@@ -239,7 +239,7 @@ const Conversations = () => {
       const seenMsgId =
         localStorage.getItem(`seen_msg_${conv.id}`) ||
         (conv.recipientId ? localStorage.getItem(`seen_msg_${conv.recipientId}`) : null);
-      if (seenMsgId) {
+      if (seenMsgId && seenMsgId !== "read") {
         if (seenMsgId === lastMsg.id) {
           return { ...conv, unreadCount: 0 };
         }
@@ -249,21 +249,23 @@ const Conversations = () => {
           return { ...conv, unreadCount: unseenCount };
         }
       }
-      let unread = conv.unreadCount ?? 0;
-      if (unread === 0 && lastMsg.isFromPatient) {
-        let lastPracticeIdx = -1;
-        for (let i = conv.messages.length - 1; i >= 0; i--) {
-          const msg = conv.messages[i];
-          if (msg && !msg.isFromPatient) {
-            lastPracticeIdx = i;
-            break;
-          }
+      let lastPracticeIdx = -1;
+      for (let i = conv.messages.length - 1; i >= 0; i--) {
+        const msg = conv.messages[i];
+        if (msg && !msg.isFromPatient) {
+          lastPracticeIdx = i;
+          break;
         }
-        unread =
-          lastPracticeIdx !== -1
-            ? conv.messages.slice(lastPracticeIdx + 1).filter((m) => m.isFromPatient).length
-            : conv.messages.filter((m) => m.isFromPatient).length;
       }
+      const unreadSinceReply =
+        lastPracticeIdx !== -1
+          ? conv.messages.slice(lastPracticeIdx + 1).filter((m) => m.isFromPatient).length
+          : conv.messages.filter((m) => m.isFromPatient).length;
+
+      const unread = conv.unreadCount && conv.unreadCount > 0
+        ? Math.min(conv.unreadCount, Math.max(1, unreadSinceReply))
+        : Math.max(1, unreadSinceReply);
+
       return { ...conv, unreadCount: unread };
     });
   };
@@ -443,9 +445,11 @@ const Conversations = () => {
             lastMessageTimestamp: payload.message.createdAt || Date.now(),
             unreadCount: isFocused
               ? 0
-              : isNewMessageAdded && payload.message.isFromPatient
-                ? (conv.unreadCount || 0) + 1
-                : (conv.unreadCount || 0),
+              : !payload.message.isFromPatient
+                ? 0
+                : isNewMessageAdded && payload.message.isFromPatient
+                  ? (conv.unreadCount || 0) + 1
+                  : (conv.unreadCount || 0),
           };
           const remaining = prev.filter((_, idx) => idx !== foundIdx);
           return [updatedConv, ...remaining];
@@ -525,9 +529,11 @@ const Conversations = () => {
             lastMessageTimestamp: payload.message.createdAt || Date.now(),
             unreadCount: isFocused
               ? 0
-              : isNewMessageAdded && payload.message.isFromPatient
-                ? (conv.unreadCount || 0) + 1
-                : (conv.unreadCount || 0),
+              : !payload.message.isFromPatient
+                ? 0
+                : isNewMessageAdded && payload.message.isFromPatient
+                  ? (conv.unreadCount || 0) + 1
+                  : (conv.unreadCount || 0),
           };
 
           const remaining = prev.filter((_, idx) => idx !== foundIdx);
@@ -621,6 +627,11 @@ const Conversations = () => {
             conv.recipientId === payload.conversationId ||
             (payload.recipientId && (conv.id === payload.recipientId || conv.recipientId === payload.recipientId))
           ) {
+            const lastMsg = conv.messages && conv.messages.length > 0 ? conv.messages[conv.messages.length - 1] : null;
+            if (lastMsg?.id) {
+              localStorage.setItem(`seen_msg_${conv.id}`, lastMsg.id);
+              if (conv.recipientId) localStorage.setItem(`seen_msg_${conv.recipientId}`, lastMsg.id);
+            }
             return {
               ...conv,
               unreadCount: 0,
@@ -699,25 +710,30 @@ const Conversations = () => {
 
   const handleConversationClick = (conv: Conversation) => {
     setSelectedConversationId(conv.id);
-    if (conv.unreadCount > 0) {
-      setConversations((prev) =>
-        prev.map((c) => (c.id === conv.id ? { ...c, unreadCount: 0 } : c))
-      );
-      const lastMsg = conv.messages && conv.messages.length > 0 ? conv.messages[conv.messages.length - 1] : null;
-      const lastMsgId = lastMsg?.id;
-      const markPromise =
-        conv.platform === "instagram"
-          ? markInstagramSeen(conv.recipientId || "", conv.id, lastMsgId)
-          : conv.platform === "facebook"
-            ? markFacebookSeen(conv.recipientId || "", conv.id, lastMsgId)
-            : conv.platform === "web"
-              ? markWebConversationRead(conv.id)
-              : Promise.resolve();
+    const lastMsg = conv.messages && conv.messages.length > 0 ? conv.messages[conv.messages.length - 1] : null;
+    const lastMsgId = lastMsg?.id;
 
-      markPromise.finally(() => {
-        queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
-      });
+    if (lastMsgId) {
+      if (conv.id) localStorage.setItem(`seen_msg_${conv.id}`, lastMsgId);
+      if (conv.recipientId) localStorage.setItem(`seen_msg_${conv.recipientId}`, lastMsgId);
     }
+
+    setConversations((prev) =>
+      prev.map((c) => (c.id === conv.id ? { ...c, unreadCount: 0 } : c))
+    );
+
+    const markPromise =
+      conv.platform === "instagram"
+        ? markInstagramSeen(conv.recipientId || "", conv.id, lastMsgId)
+        : conv.platform === "facebook"
+          ? markFacebookSeen(conv.recipientId || "", conv.id, lastMsgId)
+          : conv.platform === "web"
+            ? markWebConversationRead(conv.id)
+            : Promise.resolve();
+
+    markPromise.finally(() => {
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+    });
   };
 
   const filteredConversations = useMemo(() => {

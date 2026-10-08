@@ -9,7 +9,7 @@ import {
   HiOutlineCalendar,
 } from "react-icons/hi";
 import { CONVERSATION_TAGS, Conversation } from "../../../consts/conversations";
-import { getAvatarColor, getInitials, getPlatformLabel, getChipColor } from "../utils";
+import { getAvatarColor, getInitials, getPlatformLabel, getChipColor, sanitizeName } from "../utils";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 import { useLocationContext } from "../../../providers/LocationContext";
 
@@ -40,7 +40,7 @@ export default function LeadSidebar({ selectedConversation, onViewLead }: LeadSi
           {getInitials(selectedConversation.patientName)}
         </div>
         <h3 className="text-sm font-bold text-foreground">
-          {selectedConversation.patientName}
+          {sanitizeName(selectedConversation.patientName) || selectedConversation.patientName}
         </h3>
         <p className="text-[11px] text-gray-400 dark:text-foreground/40 mt-0.5">
           {getPlatformLabel(selectedConversation.platform)}
