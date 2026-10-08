@@ -1231,12 +1231,12 @@ const Conversations = () => {
           const locName = foundLoc ? foundLoc.name : (typeof rawLoc === "string" ? rawLoc : "");
           setConversations((prev) =>
             prev.map((c) => {
-              if (c.id === updatedLead.socialConversationId) {
+              if (c.id === updatedLead.socialConversationId || (updatedLead._id && c.leadId === updatedLead._id)) {
                 return {
                   ...c,
                   leadId: updatedLead._id,
                   leadStatus: updatedLead.status,
-                  patientName: `${updatedLead.firstName} ${updatedLead.lastName}`,
+                  patientName: `${updatedLead.firstName} ${updatedLead.lastName}`.trim(),
                   patientEmail: updatedLead.email,
                   patientPhone: updatedLead.phone,
                   patientLocation: locName,
@@ -1247,12 +1247,12 @@ const Conversations = () => {
             })
           );
           setModalLead((prev) => {
-            if (prev && prev.id === updatedLead.socialConversationId) {
+            if (prev && (prev.id === updatedLead.socialConversationId || (updatedLead._id && prev.leadId === updatedLead._id))) {
               return {
                 ...prev,
                 leadId: updatedLead._id,
                 leadStatus: updatedLead.status,
-                patientName: `${updatedLead.firstName} ${updatedLead.lastName}`,
+                patientName: `${updatedLead.firstName} ${updatedLead.lastName}`.trim(),
                 patientEmail: updatedLead.email,
                 patientPhone: updatedLead.phone,
                 patientLocation: locName,
