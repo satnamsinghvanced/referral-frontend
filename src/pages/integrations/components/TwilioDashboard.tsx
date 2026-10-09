@@ -15,7 +15,7 @@ import PhoneNumbersCallRouting from "./twilio/PhoneNumbersCallRouting";
 import RecordedCallsAiLeadCapture from "./twilio/RecordedCallsAiLeadCapture";
 import ReleaseNumberModal from "./twilio/ReleaseNumberModal";
 import { useTwilioStripeListener } from "./twilio/useTwilioStripeListener";
-import { MOCK_PHONE_ROUTING_NUMBERS, MOCK_RECORDED_CALLS } from "../../phone-service/mockData";
+import { PhoneRoutingSetting } from "../../phone-service/mockData";
 
 interface TwilioDashboardProps {
   twilioConfig?: TwilioConfigResponse | undefined;
@@ -32,6 +32,23 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
   const [planExpiresAt, setPlanExpiresAt] = useState<string | null | undefined>(twilioConfig?.planExpiresAt);
   const planName = twilioConfig?.planName || "No Active Plan";
   const [phoneNumbers, setPhoneNumbers] = useState<PhoneNumber[]>([]);
+  const [routingSettings, setRoutingSettings] = useState<PhoneRoutingSetting[]>([]);
+
+  const fetchRoutingSettings = async () => {
+    try {
+      const response = (await axios.get("/twilio-checkout/routing-settings")) as any;
+      const settings = response?.data?.settings || response?.settings || [];
+      if (Array.isArray(settings) && settings.length > 0) {
+        setRoutingSettings(settings);
+      }
+    } catch (err) {
+      console.error("Failed to fetch routing settings:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchRoutingSettings();
+  }, []);
 
   useEffect(() => {
     if (twilioConfig) {
@@ -88,9 +105,12 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
       setPrevStatus(null);
     }
   }, [registration?.status, prevStatus]);
+
   const handlePurchaseSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ["twilio"] });
+    fetchRoutingSettings();
   };
+
   const handleConfirmRelease = async () => {
     if (!numberToRelease) return;
     setIsReleasing(true);
@@ -105,6 +125,7 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
           color: "success",
         });
         queryClient.invalidateQueries({ queryKey: ["twilio"] });
+        fetchRoutingSettings();
       } else {
         throw new Error(response?.message || "Failed to release number.");
       }
@@ -120,6 +141,7 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
       setNumberToRelease(null);
     }
   };
+
   const handleRefresh = async () => {
     if (isRefreshing) return;
     setIsRefreshing(true);
@@ -128,6 +150,7 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
         queryClient.invalidateQueries({ queryKey: ["twilio"] }),
         queryClient.invalidateQueries({ queryKey: ["twilio", "a2p"] }),
         axios.get("/twilio-checkout/active-numbers").catch(() => { }),
+        fetchRoutingSettings(),
       ]);
       await new Promise((res) => setTimeout(res, 800));
       addToast({
@@ -141,8 +164,8 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
       setIsRefreshing(false);
     }
   };
-  const activeCount = twilioConfig ? phoneNumbers.length : MOCK_PHONE_ROUTING_NUMBERS.length;
-  const recordedCount = twilioConfig ? (minutesLimit > 0 ? MOCK_RECORDED_CALLS.length : 0) : MOCK_RECORDED_CALLS.length;
+
+  const activeCount = phoneNumbers.length;
   return (
     <div className="flex flex-col gap-5 w-full">
       <TwilioOverviewHeader
@@ -152,7 +175,7 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
         minutesLimit={minutesLimit}
         messagesUsed={messagesUsed}
         messagesLimit={messagesLimit}
-        recordedCallsCount={recordedCount}
+        recordedCallsCount={0}
         onOpenManagePlans={() => setIsAddCreditsOpen(true)}
         onOpenPurchaseNumber={() => setIsPurchaseNumberOpen(true)}
       />
@@ -164,22 +187,16 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
         onOpenRegistrationModal={() => setIsA2PRegistrationOpen(true)}
       />
       <PhoneNumbersCallRouting
-        initialNumbers={MOCK_PHONE_ROUTING_NUMBERS}
+        initialNumbers={routingSettings}
         onRefresh={handleRefresh}
         onDeleteNumber={(id) => {
           const numToDelete = phoneNumbers.find((p) => p.id === id);
           if (numToDelete) {
             setNumberToRelease(numToDelete);
-          } else {
-            addToast({
-              title: "Demo Action",
-              description: "Released phone number in demo mode.",
-              color: "success",
-            });
           }
         }}
       />
-      <RecordedCallsAiLeadCapture initialCalls={MOCK_RECORDED_CALLS} />
+      <RecordedCallsAiLeadCapture />
       <TwilioAddCreditsModal
         isOpen={isAddCreditsOpen}
         onClose={() => setIsAddCreditsOpen(false)}

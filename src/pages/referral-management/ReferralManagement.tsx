@@ -57,7 +57,7 @@ import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustm
 import { useRolePermissions } from "../../hooks/useRolePermissions";
 import { useLocationContext } from "../../providers/LocationContext";
 
-type ReferralType = "Referrals" | "Referrers" | "QR/NFC";
+type ReferralType = "Referrals" | "Referrers" | "QR & NFC Generator";
 
 const REFERRAL_INITIAL_FILTERS = {
   page: 1,
@@ -92,7 +92,7 @@ const ReferralManagement = () => {
     if (hasManageReferrers) {
       tabs.push({ title: "Referrers", className: "tour-step-referrers-tab" });
       tabs.push({
-        title: "QR/NFC",
+        title: "QR & NFC Generator",
         className: "tour-step-nfc-tab",
       });
     }
@@ -390,8 +390,8 @@ const ReferralManagement = () => {
         ...(hasManageReferrers
           ? [
             {
-              label: "Generate QR Code",
-              onClick: () => setSelectedReferralType("QR/NFC"),
+              label: "Generate QR & NFC Code",
+              onClick: () => setSelectedReferralType("QR & NFC Generator"),
               icon: <LuQrCode fontSize={15} />,
               variant: "ghost",
               color: "default",
@@ -799,7 +799,7 @@ const ReferralManagement = () => {
             </div>
           )}
 
-          {selectedReferralType === "QR/NFC" && <TrackingPanel />}
+          {selectedReferralType === "QR & NFC Generator" && <TrackingPanel />}
         </div>
 
         <ReferrerActionsModal

@@ -635,7 +635,7 @@ const TrackingPanel = () => {
                       onPress={() => setShowGenerator(true)}
                       className="border-small"
                     >
-                      Generate New QR Code
+                      Generate New QR & NFC Code
                     </Button>
                   </div>
                 </div>
