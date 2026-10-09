@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardBody, Button, Switch, Input, Textarea, Skeleton, addToast } from "@heroui/react";
 import { FiPhone, FiRefreshCw, FiTrash2, FiChevronDown, FiChevronUp, FiAlertTriangle, FiCheck, FiGitCommit, FiMic, FiUser, FiUsers } from "react-icons/fi";
 import { HiOutlineSparkles } from "react-icons/hi2";
 import { PhoneRoutingSetting } from "../../../phone-service/mockData";
+import axios from "../../../../services/axios";
 
 interface PhoneNumbersCallRoutingProps {
   initialNumbers: PhoneRoutingSetting[];
@@ -44,7 +45,7 @@ const TOGGLE_CONFIGS = [
     onChange: (val: boolean, state: PhoneRoutingSetting) => ({
       ...state,
       recordCallsToggle: val,
-      aiLeadAutoFillToggle: val,
+      aiLeadAutoFillToggle: val ? state.aiLeadAutoFillToggle : false,
     }),
   },
   {
@@ -86,6 +87,11 @@ export default function PhoneNumbersCallRouting({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftState, setDraftState] = useState<PhoneRoutingSetting | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setNumbers(initialNumbers);
+  }, [initialNumbers]);
+
   const handleRefreshClick = async () => {
     setIsLoading(true);
     try {
@@ -96,7 +102,7 @@ export default function PhoneNumbersCallRouting({
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   const handleStartEdit = (num: PhoneRoutingSetting) => {
     setEditingId(num.id);
@@ -108,19 +114,51 @@ export default function PhoneNumbersCallRouting({
     setDraftState(null);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!draftState) return;
-    setNumbers((prev) =>
-      prev.map((n) => (n.id === draftState.id ? { ...draftState } : n))
-    );
-    addToast({
-      title: "Settings Saved",
-      description: `Updated routing settings for ${draftState.phoneNumber}`,
-      color: "success",
-    });
-    setEditingId(null);
-    setDraftState(null);
+    try {
+      const payload = {
+        phoneNumber: draftState.phoneNumber,
+        separateLines: draftState.separateLines,
+        forwardingNumber: draftState.forwardingNumber,
+        forwardNewPatients: draftState.forwardNewPatients,
+        forwardExistingPatients: draftState.forwardExistingPatients,
+        ivrGreetingOn: draftState.ivrGreetingOn,
+        greetingMode: draftState.greetingMode || "auto",
+        ivrGreetingText: draftState.ivrGreetingText,
+        ivrOptions: draftState.ivrOptions || [],
+        recordCallsToggle: draftState.recordCallsToggle,
+        aiLeadAutoFillToggle: draftState.recordCallsToggle ? draftState.aiLeadAutoFillToggle : false,
+      };
+
+      const response = (await axios.put("/twilio-checkout/routing-settings", payload)) as any;
+      if (response?.data?.setting) {
+        setNumbers((prev) =>
+          prev.map((n) => (n.id === draftState.id ? { ...draftState, ...response.data.setting } : n))
+        );
+      } else {
+        setNumbers((prev) =>
+          prev.map((n) => (n.id === draftState.id ? { ...draftState } : n))
+        );
+      }
+
+      addToast({
+        title: "Settings Saved",
+        description: `Updated routing settings for ${draftState.phoneNumber}`,
+        color: "success",
+      });
+    } catch (err: any) {
+      addToast({
+        title: "Error Saving Settings",
+        description: err?.response?.data?.message || err.message || "Failed to save settings",
+        color: "danger",
+      });
+    } finally {
+      setEditingId(null);
+      setDraftState(null);
+    }
   };
+
   return (
     <Card className="shadow-none border border-foreground/10 rounded-2xl bg-background p-5">
       <CardBody className="p-0 flex flex-col gap-5">
@@ -183,12 +221,19 @@ export default function PhoneNumbersCallRouting({
                   className: "bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800",
                   dot: true,
                 },
-                {
-                  key: "status",
-                  label: "Active",
-                  className: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800",
-                  icon: <FiCheck className="w-3 h-3" />,
-                },
+                hasForwarding
+                  ? {
+                    key: "status",
+                    label: "Active",
+                    className: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800",
+                    icon: <FiCheck className="w-3 h-3" />,
+                  }
+                  : {
+                    key: "status",
+                    label: "Message-only mode",
+                    className: "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800",
+                    icon: <FiAlertTriangle className="w-3 h-3 text-amber-600" />,
+                  },
                 ...(isRecording
                   ? [
                     {
@@ -288,7 +333,7 @@ export default function PhoneNumbersCallRouting({
                     <div className="mt-1 mb-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl px-3.5 py-2 flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300 text-xs font-semibold">
                         <FiAlertTriangle className="w-4 h-4 shrink-0 text-amber-600" />
-                        <span>No forwarding number set — calls will not connect.</span>
+                        <span>No forwarding number set — callers cannot be connected and no menu options are offered. Message-only mode is active.</span>
                       </div>
                       <Button
                         size="sm"
@@ -392,8 +437,8 @@ export default function PhoneNumbersCallRouting({
                             }
                             className="w-full font-mono"
                           />
-                          <span className="text-[11px] text-foreground-400">
-                            Enter the physical phone number at your office that should ring when a patient calls the Phone Service number above.
+                          <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                            Until a forwarding number is saved, callers cannot be connected and no menu options are offered. Their message is still recorded.
                           </span>
                         </div>
                       ) : (
@@ -429,10 +474,17 @@ export default function PhoneNumbersCallRouting({
                       )}
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center justify-between gap-4">
-                          <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                            <FiGitCommit className="w-3.5 h-3.5 text-purple-500" />
-                            IVR Greeting
-                          </span>
+                          <div>
+                            <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                              <FiGitCommit className="w-3.5 h-3.5 text-purple-500" />
+                              IVR Greeting
+                            </span>
+                            {!hasForwarding && (
+                              <span className="text-[11px] text-amber-600 dark:text-amber-400 block italic">
+                                Applies once a forwarding number is set
+                              </span>
+                            )}
+                          </div>
                           <Switch
                             size="sm"
                             isSelected={draftState.ivrGreetingOn}

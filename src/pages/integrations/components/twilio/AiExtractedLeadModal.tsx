@@ -3,6 +3,7 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input
 import { FiCheck, FiFileText } from "react-icons/fi";
 import { HiOutlineSparkles } from "react-icons/hi2";
 import { RecordedCall } from "../../../phone-service/mockData";
+import axios from "../../../../services/axios";
 
 interface AiExtractedLeadModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export default function AiExtractedLeadModal({ isOpen, onClose, call, onSaveLead
   const [insurance, setInsurance] = useState("");
   const [requestedDate, setRequestedDate] = useState("");
   const [notes, setNotes] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (call) {
@@ -29,23 +31,47 @@ export default function AiExtractedLeadModal({ isOpen, onClose, call, onSaveLead
       setNotes(call.notes || `${call.reasonForCall || "Call inquiry"} — extracted from transcript`);
     }
   }, [call]);
+
   if (!call) return null;
-  const handleSave = () => {
-    onSaveLeadSuccess(call.id, {
-      callerName,
-      patientType,
-      reasonForCall,
-      insurance,
-      requestedDate,
-      notes,
-      isLeadSaved: true,
-    });
-    addToast({
-      title: "Lead Saved",
-      description: `Successfully saved ${callerName} as a lead in Lead Tracking!`,
-      color: "success",
-    });
-    onClose();
+
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+      const payload = {
+        callerName,
+        patientType,
+        reasonForCall,
+        insurance,
+        requestedDate,
+        notes,
+        phone: call.phoneNumber,
+      };
+      const response = (await axios.post(`/twilio-checkout/draft-leads/${call.id}/save`, payload)) as any;
+      onSaveLeadSuccess(call.id, {
+        callerName,
+        patientType,
+        reasonForCall,
+        insurance,
+        requestedDate,
+        notes,
+        isLeadSaved: true,
+        leadId: response?.data?.leadId || response?.leadId,
+      });
+      addToast({
+        title: "Lead Saved",
+        description: `Successfully saved ${callerName} as a lead in Lead Tracking!`,
+        color: "success",
+      });
+      onClose();
+    } catch (err: any) {
+      addToast({
+        title: "Failed to Save Lead",
+        description: err?.response?.data?.message || err.message || "Could not save lead",
+        color: "danger",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
   return (
     <Modal
@@ -177,6 +203,7 @@ export default function AiExtractedLeadModal({ isOpen, onClose, call, onSaveLead
                 radius="sm"
                 variant="solid"
                 color="primary"
+                isLoading={isSaving}
                 onPress={handleSave}
                 startContent={<FiCheck className="text-[15px]" />}
               >
