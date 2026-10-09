@@ -693,10 +693,6 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                     className={`p-3.5 rounded-xl border ${isLight ? "bg-slate-50 border-slate-200/80" : "bg-[#111A2E] border-[#1E2B45]"
                       }`}
                   >
-                    <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-                      <FiStar className="text-amber-400" />
-                      <span>Review Score</span>
-                    </div>
                     <div className="text-base font-extrabold text-slate-900 dark:text-white mt-1">
                       {modalLoading && selectedClient.reviewScore === undefined ? (
                         <div className="w-12 h-5 bg-slate-200 dark:bg-slate-700 animate-pulse rounded my-0.5" />

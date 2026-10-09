@@ -58,7 +58,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
       }),
     email: Yup.string().required("Email is required").matches(EMAIL_REGEX, "Invalid email format"),
     phone: Yup.string().required("Phone is required").matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX"),
-    location: Yup.string().nullable().notRequired(),
+    location: Yup.string().required("Practice location is required"),
     source: Yup.string().required("Source is required"),
     priority: Yup.string().required("Priority is required"),
     estimatedValue: Yup.number()
@@ -278,6 +278,8 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                         size="sm"
                         radius="md"
                         disableAnimation
+                        isRequired
+                        disallowEmptySelection
                         selectedKeys={formik.values.location ? [formik.values.location] : []}
                         onSelectionChange={(keys) =>
                           formik.setFieldValue("location", Array.from(keys)[0] as string)

@@ -16,7 +16,6 @@ interface LeadCardProps {
     status: string;
     treatments: string[];
     value: string;
-    score: number;
     responseTime: string;
     priority: string;
     stage: string;
@@ -146,10 +145,7 @@ const LeadCard = ({ lead, onPress, onDelete, draggable, onDragStart, onDragEnd, 
               {lead.value}
             </span>
             <div className="flex items-center gap-1.5">
-              <div className="flex items-center gap-0.5 text-[10px] font-bold text-gray-500 dark:text-foreground/60">
-                <HiStar className="text-yellow-400 size-3" />
-                <span>{lead.score}</span>
-              </div>
+            
               {onDelete && (
                 <div className="w-0 group-hover:w-6 overflow-visible transition-all duration-150 flex items-center justify-end">
                   <Button
