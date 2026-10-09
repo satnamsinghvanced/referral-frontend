@@ -9,7 +9,12 @@ import {
   SelectItem,
   useDisclosure,
   Spinner,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalContent,
 } from "@heroui/react";
+import { BsLightningCharge } from "react-icons/bs";
 import { useEffect, useMemo, useState } from "react";
 import {
   HiOutlineCalendar,
@@ -90,6 +95,11 @@ const LeadTracking = () => {
     isOpen: isDeleteOpen,
     onOpen: onDeleteOpen,
     onClose: onDeleteClose,
+  } = useDisclosure();
+  const {
+    isOpen: isAutomationOpen,
+    onOpen: onAutomationOpen,
+    onOpenChange: onAutomationOpenChange,
   } = useDisclosure();
   const [leadToDelete, setLeadToDelete] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -368,17 +378,13 @@ const LeadTracking = () => {
   const planAccess = billingData?.access;
 
   const HEADING_DATA = {
-    heading: view === "automations" ? "Lead Automations" : "Lead Tracking",
-    subHeading: view === "automations"
-      ? "Configure automated SMS, emails, and notifications triggered by lead events."
-      : "Monitor and manage patient leads from inquiry to conversion",
-    buttons: view === "automations" ? [] : [
+    heading: "Lead Tracking",
+    subHeading: "Monitor and manage patient leads from inquiry to conversion",
+    buttons: [
       ...(planAccess?.advanced_automation !== false ? [
         {
           label: "Automation Setup",
-          onClick: () => {
-            setView("automations");
-          },
+          onClick: onAutomationOpen,
           icon: <HiOutlineCog fontSize={15} />,
           variant: "ghost" as const,
           color: "default" as const,
@@ -414,9 +420,7 @@ const LeadTracking = () => {
   return (
     <ComponentContainer headingData={HEADING_DATA}>
       <div className="flex flex-col gap-4 md:gap-5">
-        {view !== "automations" && (
-          <>
-            <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
+        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
               {SUMMARY_STATS.map((data, i) => (
                 <MiniStatsCard key={i} cardData={data} />
               ))}
@@ -542,8 +546,6 @@ const LeadTracking = () => {
                 </div>
               </div>
             </div>
-          </>
-        )}
         {isLoading ? (
           <div className="flex justify-center items-center h-72 border border-foreground/10 rounded-xl bg-background shadow-none">
             <Spinner size="sm" label="Loading leads..." color="primary" />
@@ -558,8 +560,6 @@ const LeadTracking = () => {
               message="We encountered an issue fetching your lead data. Please try again."
             />
           </div>
-        ) : view === "automations" ? (
-          <LeadAutomations onBack={() => setView("pipeline")} />
         ) : view === "pipeline" ? (
           <div className="w-full overflow-x-auto h-full min-h-[430px]">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4  lg:min-w-0 h-fit">
@@ -833,6 +833,38 @@ const LeadTracking = () => {
         title="Delete Lead"
         description={`Are you sure you want to delete lead ${leadToDelete?.name || `${leadToDelete?.firstName || ""}\u00a0${leadToDelete?.lastName || ""}`.trim() || "this lead"}? This action cannot be undone.`}
       />
+      <Modal
+        isOpen={isAutomationOpen}
+        onOpenChange={onAutomationOpenChange}
+        size="4xl"
+        placement="center"
+        scrollBehavior="inside"
+        classNames={{
+          base: "max-lg:!m-3 !m-0 max-h-[92vh] flex flex-col",
+          closeButton: "cursor-pointer",
+        }}
+      >
+        <ModalContent>
+          {() => (
+            <>
+              <ModalHeader className="flex flex-col gap-1 flex-shrink-0 p-4 pb-2">
+                <div className="flex items-center gap-2">
+                  <BsLightningCharge className="size-5 text-primary shrink-0" />
+                  <h4 className="text-base font-semibold leading-snug text-foreground">
+                    Lead Automation Setup
+                  </h4>
+                </div>
+                <p className="text-xs text-foreground/60 font-normal">
+                  Configure automated workflows to improve response times and conversion rates
+                </p>
+              </ModalHeader>
+              <ModalBody className="px-4 pt-0 pb-4 h-full overflow-auto">
+                <LeadAutomations />
+              </ModalBody>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </ComponentContainer>
   );
 };

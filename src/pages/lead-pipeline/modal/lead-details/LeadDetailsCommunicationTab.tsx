@@ -1,4 +1,4 @@
-import { Button, Spinner, Textarea } from "@heroui/react";
+import { Button, Chip, Spinner, Textarea } from "@heroui/react";
 import { Link } from "react-router-dom";
 import {
   HiOutlineChat,
@@ -232,9 +232,20 @@ const LeadDetailsCommunicationTab = ({
                       </div>
                       {isEmail ? (
                         <div className="space-y-0.5">
-                          <p className="text-xs text-gray-500 dark:text-foreground/60 font-medium">
-                            To: <span className="font-semibold">{lead.email}</span>
-                          </p>
+                          <div className="flex items-center justify-between pr-8">
+                            <p className="text-xs text-gray-500 dark:text-foreground/60 font-medium">
+                              To: <span className="font-semibold">{lead.email}</span>
+                            </p>
+                            {record.opened ? (
+                              <Chip size="sm" variant="flat" color="success" className="text-[10px] h-5 font-semibold">
+                                Opened
+                              </Chip>
+                            ) : (
+                              <Chip size="sm" variant="flat" color="default" className="text-[10px] h-5 text-gray-400 font-semibold">
+                                Unopened
+                              </Chip>
+                            )}
+                          </div>
                           {record.subject && (
                             <p className="text-xs text-gray-500 dark:text-foreground/60 font-medium">
                               Subject:{" "}

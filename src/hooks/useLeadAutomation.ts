@@ -21,6 +21,8 @@ export const useCreateLeadAutomation = () => {
     mutationFn: createLeadAutomation,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leadAutomations"] });
+      queryClient.invalidateQueries({ queryKey: ["leadAutomationOverview"] });
+      queryClient.invalidateQueries({ queryKey: ["leadAutomationPerformance"] });
       addToast({
         title: "Success",
         description: "Lead automation created successfully",
@@ -42,6 +44,8 @@ export const useUpdateLeadAutomation = () => {
     mutationFn: updateLeadAutomation,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leadAutomations"] });
+      queryClient.invalidateQueries({ queryKey: ["leadAutomationOverview"] });
+      queryClient.invalidateQueries({ queryKey: ["leadAutomationPerformance"] });
       addToast({
         title: "Success",
         description: "Lead automation updated successfully",
@@ -63,6 +67,8 @@ export const useDeleteLeadAutomation = () => {
     mutationFn: deleteLeadAutomation,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leadAutomations"] });
+      queryClient.invalidateQueries({ queryKey: ["leadAutomationOverview"] });
+      queryClient.invalidateQueries({ queryKey: ["leadAutomationPerformance"] });
       addToast({
         title: "Success",
         description: "Lead automation deleted successfully",
@@ -84,6 +90,8 @@ export const useToggleLeadAutomation = () => {
     mutationFn: toggleLeadAutomation,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leadAutomations"] });
+      queryClient.invalidateQueries({ queryKey: ["leadAutomationOverview"] });
+      queryClient.invalidateQueries({ queryKey: ["leadAutomationPerformance"] });
     },
     onError: (error: any) => {
       addToast({
@@ -91,6 +99,26 @@ export const useToggleLeadAutomation = () => {
         description: error?.response?.data?.message || "Failed to toggle automation",
         color: "danger",
       });
+    },
+  });
+};
+
+export const useLeadAutomationOverview = () => {
+  return useQuery({
+    queryKey: ["leadAutomationOverview"],
+    queryFn: async () => {
+      const { getLeadAutomationOverview } = await import("../services/leadAutomation");
+      return getLeadAutomationOverview();
+    },
+  });
+};
+
+export const useLeadAutomationPerformance = () => {
+  return useQuery({
+    queryKey: ["leadAutomationPerformance"],
+    queryFn: async () => {
+      const { getLeadAutomationPerformance } = await import("../services/leadAutomation");
+      return getLeadAutomationPerformance();
     },
   });
 };

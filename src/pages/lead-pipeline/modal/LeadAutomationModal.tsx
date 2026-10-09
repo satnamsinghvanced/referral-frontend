@@ -14,7 +14,7 @@ import { useFormik } from "formik";
 import { useEffect } from "react";
 import { FiSave } from "react-icons/fi";
 import * as Yup from "yup";
-import { useCreateLeadAutomation, useUpdateLeadAutomation } from "../../../hooks/useLeadAutomation";
+import { useUpdateLeadAutomation } from "../../../hooks/useLeadAutomation";
 
 interface LeadAutomationModalProps {
   isOpen: boolean;
@@ -34,6 +34,7 @@ const TRIGGER_EVENTS = [
 const ACTIONS = [
   { key: "Send SMS", label: "Send SMS" },
   { key: "Send Email", label: "Send Email" },
+  { key: "Send Notification", label: "Send Notification" },
 ];
 
 const DELAY_UNITS = [
@@ -44,11 +45,49 @@ const DELAY_UNITS = [
   { key: "Months", label: "Months" },
 ];
 
+const TRIGGER_DEFAULTS: Record<string, { action: string; delayAmount: number; delayUnit: string; messageTemplate: string }> = {
+  "Lead Created": {
+    action: "Send SMS",
+    delayAmount: 5,
+    delayUnit: "Minutes",
+    messageTemplate: "Hi {{firstName}}! Thanks for your interest in {{practiceName}}. We'd love to schedule a complimentary consultation. When works best for you?",
+  },
+  "Status Changed": {
+    action: "Send SMS",
+    delayAmount: 2,
+    delayUnit: "Days",
+    messageTemplate: "Hi {{firstName}}, just checking in! Did you have any questions about your orthodontic consultation? We're here to help!",
+  },
+  "Status Changed to No Show": {
+    action: "Send SMS",
+    delayAmount: 15,
+    delayUnit: "Minutes",
+    messageTemplate: "Hi {{firstName}}, we missed you at your appointment today! Would you like to reschedule? Reply or call us to set up a new time that works for you.",
+  },
+  "Appointment Scheduled": {
+    action: "Send SMS",
+    delayAmount: 0,
+    delayUnit: "Minutes",
+    messageTemplate: "Hi {{firstName}}, your appointment with {{practiceName}} is scheduled for {{appointmentDate}} at {{appointmentTime}}. Reply YES to confirm or call if you need changes!",
+  },
+  "Appointment Confirmed": {
+    action: "Send SMS",
+    delayAmount: 24,
+    delayUnit: "Hours",
+    messageTemplate: "Hi {{firstName}}, friendly reminder for your upcoming appointment with {{practiceName}} tomorrow. We look forward to seeing you!",
+  },
+  "High Value Lead": {
+    action: "Send Notification",
+    delayAmount: 0,
+    delayUnit: "Minutes",
+    messageTemplate: "High-value lead alert: {{firstName}} {{lastName}} - ${{estimatedValue}}",
+  },
+};
+
 const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomationModalProps) => {
-  const { mutateAsync: createAutomation, isPending: creating } = useCreateLeadAutomation();
+  const isEditMode = Boolean(automation);
   const { mutateAsync: updateAutomation, isPending: updating } = useUpdateLeadAutomation();
-  const isEditMode = !!automation;
-  const loading = creating || updating;
+  const loading = updating;
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
     description: Yup.string().nullable(),
@@ -89,11 +128,11 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
       name: "",
       description: "",
       triggerEvent: "Lead Created",
-      action: "Send SMS",
-      delayAmount: 0,
-      delayUnit: "Minutes",
+      action: TRIGGER_DEFAULTS["Lead Created"]?.action || "Send SMS",
+      delayAmount: TRIGGER_DEFAULTS["Lead Created"]?.delayAmount ?? 5,
+      delayUnit: TRIGGER_DEFAULTS["Lead Created"]?.delayUnit || "Minutes",
       landingPageUrl: "",
-      messageTemplate: "",
+      messageTemplate: TRIGGER_DEFAULTS["Lead Created"]?.messageTemplate || "",
       condition: "",
     },
     validationSchema,
@@ -103,13 +142,11 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
           ...values,
           delayAmount: Number(values.delayAmount) || 0,
         };
-        if (isEditMode) {
+        if (automation) {
           await updateAutomation({
             id: automation._id || automation.id,
             data: payload,
           });
-        } else {
-          await createAutomation(payload);
         }
         onOpenChange(false);
         resetForm();
@@ -135,6 +172,21 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
         });
       } else {
         formik.resetForm();
+        const defaultTrigger = "Lead Created";
+        const defaults = TRIGGER_DEFAULTS[defaultTrigger];
+        if (defaults) {
+          formik.setValues({
+            name: "",
+            description: "",
+            triggerEvent: defaultTrigger,
+            action: defaults.action,
+            delayAmount: defaults.delayAmount,
+            delayUnit: defaults.delayUnit,
+            landingPageUrl: "",
+            messageTemplate: defaults.messageTemplate,
+            condition: "",
+          });
+        }
       }
     }
   }, [isOpen, automation]);
@@ -156,10 +208,10 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
           <>
             <ModalHeader className="flex flex-col gap-1 px-4">
               <h4 className="text-base font-medium dark:text-white">
-                {isEditMode ? "Edit Lead Automation" : "Create Lead Automation"}
+                Configure Lead Automation
               </h4>
               <p className="text-xs text-gray-500 font-normal dark:text-foreground/60">
-                Configure when and how to automatically follow up with leads
+                Customize triggers, actions, and message templates for this automation
               </p>
             </ModalHeader>
             <ModalBody className="py-0 px-4 gap-3">
@@ -217,9 +269,18 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
                       value: "whitespace-normal break-words text-left",
                     }}
                     selectedKeys={formik.values.triggerEvent ? [formik.values.triggerEvent] : []}
-                    onSelectionChange={(keys) =>
-                      formik.setFieldValue("triggerEvent", Array.from(keys)[0] as string)
-                    }
+                    onSelectionChange={(keys) => {
+                      const selected = Array.from(keys)[0] as string;
+                      if (!selected) return;
+                      formik.setFieldValue("triggerEvent", selected);
+                      if (!isEditMode && TRIGGER_DEFAULTS[selected]) {
+                        const defaults = TRIGGER_DEFAULTS[selected];
+                        formik.setFieldValue("action", defaults.action);
+                        formik.setFieldValue("delayAmount", defaults.delayAmount);
+                        formik.setFieldValue("delayUnit", defaults.delayUnit);
+                        formik.setFieldValue("messageTemplate", defaults.messageTemplate);
+                      }
+                    }}
                     onBlur={() => formik.setFieldTouched("triggerEvent", true)}
                     isInvalid={!!(formik.touched.triggerEvent && formik.errors.triggerEvent)}
                     errorMessage={formik.touched.triggerEvent && (formik.errors.triggerEvent as string)}
@@ -411,7 +472,7 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
                 startContent={!loading && <FiSave className="text-[15px]" />}
                 isDisabled={loading || !formik.isValid}
               >
-                {isEditMode ? "Save Changes" : "Create"}
+                Save Changes
               </Button>
             </ModalFooter>
           </>

@@ -13,7 +13,6 @@ import axios from "../../../services/axios";
 import { HiOutlineTrash } from "react-icons/hi";
 import { useFetchTeamMembers } from "../../../hooks/settings/useTeam";
 import SendEmailModal from "./SendEmailModal";
-import LeadAutomations from "../LeadAutomations";
 import DeleteConfirmationModal from "../../../components/common/DeleteConfirmationModal";
 import { useFormik } from "formik";
 import PriorityLevelChip from "../../../components/chips/PriorityLevelChip";
@@ -302,11 +301,6 @@ const LeadDetailsModal = ({ isOpen, onOpenChange, lead, onDelete }: LeadDetailsM
                   </Tab>
                   <Tab key="attribution" title="Attribution">
                     <LeadDetailsAttributionTab lead={lead} />
-                  </Tab>
-                  <Tab key="automation" title="Automation">
-                    <div className="pt-4 space-y-4">
-                      <LeadAutomations />
-                    </div>
                   </Tab>
                 </Tabs>
               </ModalBody>

@@ -45,6 +45,7 @@ const LeadDetailsNotesTab = ({
         >
           Add Note
         </Button>
+        {parsedNotes.length > 0 && (
         <div className="mt-6 space-y-4">
           <div className="flex justify-between items-center px-2">
             <h4 className="font-bold text-sm text-foreground">Notes History</h4>
@@ -92,6 +93,7 @@ const LeadDetailsNotesTab = ({
             </div>
           )}
         </div>
+        )}
       </div>
     </div>
   );
