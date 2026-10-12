@@ -24,3 +24,13 @@ export const toggleLeadAutomation = async (id: string): Promise<any> => {
   const response = await axios.patch(`/lead-automation/${id}/toggle`);
   return response.data;
 };
+
+export const getLeadAutomationOverview = async (): Promise<any> => {
+  const response = await axios.get("/lead-automation/overview");
+  return response.data;
+};
+
+export const getLeadAutomationPerformance = async (): Promise<any> => {
+  const response = await axios.get("/lead-automation/performance");
+  return response.data;
+};

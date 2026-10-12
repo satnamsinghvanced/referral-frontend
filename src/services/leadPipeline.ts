@@ -87,21 +87,6 @@ export const updateLeadAppointment = async ({ id, appointmentType, date, time, n
 
 export const updateSchedule = updateLeadAppointment;
 
-export const sendLeadQuote = async ({
-  id,
-  lineItems,
-  personalNote,
-  sendType,
-}: {
-  id: string;
-  lineItems: any[];
-  personalNote?: string;
-  sendType?: "email" | "sms" | "both";
-}): Promise<any> => {
-  const response = await axios.post(`/lead/send-quote/${id}`, { lineItems, personalNote, sendType });
-  return response.data;
-};
-
 export const getLeadCommunicationHistory = async (id: string): Promise<any> => {
   const response = await axios.get(`/lead/communication-history/${id}`);
   return response.data;

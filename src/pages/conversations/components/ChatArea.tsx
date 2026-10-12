@@ -22,7 +22,6 @@ import {
   HiOutlineEmojiHappy,
   HiOutlineCalendar,
   HiOutlineMail,
-  HiOutlineCurrencyDollar,
   HiOutlineChat,
 } from "react-icons/hi";
 import { LuSend } from "react-icons/lu";
@@ -79,7 +78,6 @@ interface ChatAreaProps {
   onDropdownAction?: (key: string, conv: Conversation) => void;
   onScheduleClick?: () => void;
   onSendFormsClick?: () => void;
-  onSendQuoteClick?: () => void;
   isMetaConnected?: boolean;
   isIntegrationsLoading?: boolean;
   isSendingMessage?: boolean;
@@ -105,7 +103,6 @@ export default function ChatArea({
   onDropdownAction,
   onScheduleClick,
   onSendFormsClick,
-  onSendQuoteClick,
   displayLocations: _displayLocations = [],
   isTyping = false,
 }: ChatAreaProps) {
@@ -522,28 +519,7 @@ export default function ChatArea({
                 >
                   Send Forms
                 </Button>
-                <Button
-                  size="sm"
-                  variant="bordered"
-                  className="text-xs h-8 border-foreground/10 text-foreground hover:bg-[#ffe8d6] hover:text-[#e28a4b] hover:border-transparent transition-all"
-                  startContent={<HiOutlineCurrencyDollar className="size-3.5 shrink-0" />}
-                  {...(onSendQuoteClick ? { onClick: onSendQuoteClick } : {})}
-                >
-                  Send Quote
-                </Button>
               </div>
-              {selectedConversation.scheduledAppointment?.date && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/50 text-[11px] text-purple-700 dark:text-purple-300 font-medium">
-                  <HiOutlineCalendar className="size-3.5 text-purple-500 shrink-0" />
-                  <span>{selectedConversation.scheduledAppointment.date}</span>
-                  {selectedConversation.scheduledAppointment.time && (
-                    <>
-                      <span className="opacity-40">•</span>
-                      <span>{selectedConversation.scheduledAppointment.time}</span>
-                    </>
-                  )}
-                </div>
-              )}
             </div>
           );
         })()

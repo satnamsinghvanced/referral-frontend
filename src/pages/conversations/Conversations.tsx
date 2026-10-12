@@ -13,7 +13,6 @@ import LeadSidebar from "./components/LeadSidebar";
 import ViewLeadModal from "./modal/ViewLeadModal";
 import ScheduleAppointmentModal from "./modal/ScheduleAppointmentModal";
 import SendFormsModal from "./modal/SendFormsModal";
-import SendQuoteModal from "./modal/SendQuoteModal";
 import {
   getInstagramConversations,
   sendInstagramMessage,
@@ -159,7 +158,6 @@ const Conversations = () => {
   const [isViewLeadModalOpen, setIsViewLeadModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isSendFormsModalOpen, setIsSendFormsModalOpen] = useState(false);
-  const [isSendQuoteModalOpen, setIsSendQuoteModalOpen] = useState(false);
   const [modalLead, setModalLead] = useState<Conversation | null>(null);
   const [messageInput, setMessageInput] = useState("");
   const MAX_ATTACHMENTS = 5;
@@ -1197,10 +1195,6 @@ const Conversations = () => {
                   setModalLead(selectedConversation);
                   setIsSendFormsModalOpen(true);
                 }}
-                onSendQuoteClick={() => {
-                  setModalLead(selectedConversation);
-                  setIsSendQuoteModalOpen(true);
-                }}
                 isMetaConnected={isMetaConnected}
                 isIntegrationsLoading={isSocialLoading || isConversationsLoading}
                 displayLocations={displayLocations}
@@ -1300,11 +1294,6 @@ const Conversations = () => {
       <SendFormsModal
         isOpen={isSendFormsModalOpen}
         onClose={() => setIsSendFormsModalOpen(false)}
-        lead={modalLead}
-      />
-      <SendQuoteModal
-        isOpen={isSendQuoteModalOpen}
-        onClose={() => setIsSendQuoteModalOpen(false)}
         lead={modalLead}
       />
     </ComponentContainer>
