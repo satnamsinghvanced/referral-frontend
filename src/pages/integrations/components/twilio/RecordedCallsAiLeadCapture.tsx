@@ -9,6 +9,21 @@ interface RecordedCallsAiLeadCaptureProps {
   initialCalls?: RecordedCall[];
 }
 
+const formatCallerHeading = (name?: string, patientType?: string): string => {
+  if (!name) return patientType || "New Patient";
+  let clean = name.trim();
+  clean = clean.replace(/^(?:my\s+name\s+is|this\s+is|i\s+am|i'm|it\s+is|the\s+name\s+is|name\s+is|call\s+me)\b\s*/i, "").trim();
+  clean = clean.replace(/[.,/#!$%^&*;:{}=\-_`~()?"']/g, " ").trim();
+  const lower = clean.toLowerCase();
+  if (!clean || lower === "my name is" || lower === "unknown" || lower === "caller" || lower === "patient") {
+    return patientType || "New Patient";
+  }
+  return clean
+    .split(" ")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
+};
+
 export default function RecordedCallsAiLeadCapture({
   initialCalls = [],
 }: RecordedCallsAiLeadCaptureProps) {
@@ -115,7 +130,7 @@ export default function RecordedCallsAiLeadCapture({
                           <FiUser className="w-4 h-4" />
                         </div>
                         <h4 className="text-sm font-bold text-foreground">
-                          {call.callerName}
+                          {formatCallerHeading(call.callerName, call.patientType)}
                         </h4>
                         <span
                           className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${isExisting
