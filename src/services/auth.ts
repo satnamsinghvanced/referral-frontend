@@ -27,13 +27,14 @@ export interface Verify2FAPayload {
 }
 
 export interface RegisterPayload {
+  userId?: string | undefined;
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
   practiceName: string;
   medicalSpecialty: string;
-  password: string;
+  password?: string | undefined;
   messageAlert?: boolean | undefined;
   status?: string | undefined;
   couponCode?: string | undefined;

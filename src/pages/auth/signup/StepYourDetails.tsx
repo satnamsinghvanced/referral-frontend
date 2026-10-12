@@ -89,6 +89,7 @@ export const StepYourDetails: React.FC<StepYourDetailsProps> = ({
   selectedPlan,
   billingCycle = "monthly",
   onBack,
+  isExistingAccount = false,
 }) => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -163,10 +164,16 @@ export const StepYourDetails: React.FC<StepYourDetailsProps> = ({
                 const isTouched = formik.touched[field.name];
                 const error = field.name === "email" ? (emailError || formik.errors.email) : formik.errors[field.name];
                 const isInvalid = field.name === "email" ? !!(emailError || (isTouched && formik.errors.email)) : !!(isTouched && error);
+                const isPasswordField = field.name === "password";
+                const isFieldRequired = isPasswordField && isExistingAccount ? false : field.required;
+                const fieldLabel = isPasswordField && isExistingAccount ? "Password (Optional)" : field.label;
+                const fieldPlaceholder = isPasswordField && isExistingAccount ? "•••••••• (Current password kept)" : field.placeholder;
+                const fieldHelpText = isPasswordField && isExistingAccount ? "Leave blank to keep current password, or enter a new one" : field.helpText;
+
                 return (
                   <div key={field.name} className={field.colSpan || "col-span-1"}>
                     <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                      {field.label} {field.required && <span className="text-red-500">*</span>}
+                      {fieldLabel} {isFieldRequired && <span className="text-red-500">*</span>}
                     </label>
                     {field.isSelect ? (
                       <Select
@@ -228,7 +235,7 @@ export const StepYourDetails: React.FC<StepYourDetailsProps> = ({
                         type={field.isPassword ? (showPassword ? "text" : "password") : field.type}
                         name={field.name}
                         {...(field.maxLength ? { maxLength: field.maxLength } : {})}
-                        placeholder={field.placeholder}
+                        placeholder={fieldPlaceholder}
                         variant="bordered"
                         value={value}
                         onChange={(e) => {
@@ -269,9 +276,9 @@ export const StepYourDetails: React.FC<StepYourDetailsProps> = ({
                         }}
                       />
                     )}
-                    {field.helpText && !isInvalid && (
+                    {fieldHelpText && !isInvalid && (
                       <span className="text-[11px] text-slate-400 mt-1 block">
-                        {field.helpText}
+                        {fieldHelpText}
                       </span>
                     )}
                     {isInvalid && (

@@ -1,7 +1,24 @@
-import React from "react";
-import { Button, Card, CardBody, Divider, Chip } from "@heroui/react";
-import { FiAlertCircle, FiExternalLink, FiMail, FiArrowLeft, FiLifeBuoy, FiGlobe } from "react-icons/fi";
+import React, { useState, useEffect } from "react";
+import {
+  Button,
+  Card,
+  CardBody,
+  Divider,
+  Chip,
+} from "@heroui/react";
+import {
+  FiAlertCircle,
+  FiArrowRight,
+  FiMail,
+  FiArrowLeft,
+  FiLifeBuoy,
+  FiCalendar,
+  FiShoppingBag,
+  FiClock,
+  FiUser,
+} from "react-icons/fi";
 import { useLocation, useNavigate } from "react-router";
+import { checkEmailAvailability } from "../../services/auth";
 
 const SubscriptionErrorPage: React.FC = () => {
   const location = useLocation();
@@ -15,6 +32,38 @@ const SubscriptionErrorPage: React.FC = () => {
     searchParams.get("message") ||
     "Your subscription plan has expired or your account status requires attention.";
   const userEmail = location.state?.email || searchParams.get("email") || "";
+  const initialUserId =
+    location.state?.userId ||
+    searchParams.get("userId") ||
+    searchParams.get("user_id") ||
+    searchParams.get("id") ||
+    "";
+  const [resolvedUserId, setResolvedUserId] = useState<string>(initialUserId);
+
+  const rawExpiredAt =
+    location.state?.expiredAt ||
+    searchParams.get("expiredAt") ||
+    searchParams.get("expired_at") ||
+    "";
+  const planName =
+    location.state?.planName ||
+    searchParams.get("planName") ||
+    searchParams.get("plan") ||
+    "";
+
+  useEffect(() => {
+    if (!resolvedUserId && userEmail) {
+      checkEmailAvailability(userEmail)
+        .then((res: any) => {
+          const data = res?.data || res;
+          if (data?.userId) {
+            setResolvedUserId(String(data.userId));
+          }
+        })
+        .catch(() => {});
+    }
+  }, [resolvedUserId, userEmail]);
+
   const lowerMsg = errorMessage.toLowerCase();
 
   const isSuspendedIssue =
@@ -34,25 +83,38 @@ const SubscriptionErrorPage: React.FC = () => {
     !isSuspendedIssue &&
     (typeParam === "deleted" ||
       Boolean(location.state?.isDeleted) ||
-      lowerMsg.includes("deleted") ||
-      lowerMsg.includes("deactivated"));
+      (lowerMsg.includes("recovery") && lowerMsg.includes("deleted")));
+
+  const isExpiredIssue =
+    !isSuspendedIssue &&
+    !isDeletedIssue &&
+    (typeParam === "expired" ||
+      Boolean(location.state?.isExpired) ||
+      location.state?.status === "expired" ||
+      lowerMsg.includes("expired") ||
+      lowerMsg.includes("no active") ||
+      lowerMsg.includes("could not be processed") ||
+      lowerMsg.includes("canceled"));
 
   const isPaymentIssue =
     !isSuspendedIssue &&
     !isDeletedIssue &&
+    !isExpiredIssue &&
     (typeParam === "payment" ||
       lowerMsg.includes("payment") ||
       lowerMsg.includes("failed") ||
       lowerMsg.includes("pending"));
 
-  const isExpiredIssue =
-    !isSuspendedIssue &&
-    !isDeletedIssue &&
-    !isPaymentIssue &&
-    (typeParam === "expired" ||
-      lowerMsg.includes("expired") ||
-      lowerMsg.includes("no active") ||
-      lowerMsg.includes("canceled"));
+  const formattedExpiredDate = (() => {
+    if (!rawExpiredAt) return "October 11, 2026";
+    const d = new Date(rawExpiredAt);
+    if (isNaN(d.getTime())) return String(rawExpiredAt);
+    return d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  })();
 
   const getWpUrl = (path: string = "") => {
     const wordpressUrl =
@@ -63,12 +125,21 @@ const SubscriptionErrorPage: React.FC = () => {
     return `${cleanUrl}${path}`;
   };
 
-  const handleReturnToWordPress = () => {
-    if (isPaymentIssue) {
-      window.open(getWpUrl("/my-account"), "_blank");
-    } else {
-      window.open(getWpUrl("/pricing"), "_blank");
-    }
+  const handleRedirectToChoosePlan = () => {
+    const params = new URLSearchParams();
+    if (resolvedUserId) params.set("userId", resolvedUserId);
+    if (userEmail) params.set("email", userEmail);
+    params.set("mode", "renew");
+    params.set("isRenew", "true");
+    const queryString = params.toString();
+
+    navigate(`/signup${queryString ? `?${queryString}` : ""}`, {
+      state: {
+        userId: resolvedUserId,
+        email: userEmail,
+        isRenew: true,
+      },
+    });
   };
 
   const handleContactSupport = () => {
@@ -90,14 +161,16 @@ const SubscriptionErrorPage: React.FC = () => {
     subtitleText = "60-Day Recovery Period Active";
     badgeText = "Account Deleted";
     badgeColor = "danger";
+  } else if (isExpiredIssue) {
+    titleText = "Subscription Plan Expired";
+    subtitleText = "Your access to PracticeROI has expired. Select a plan to restore your access immediately.";
+    badgeText = "Plan Expired";
+    badgeColor = "warning";
   } else if (isPaymentIssue) {
     titleText = "Payment Required";
+    subtitleText = "Please update your payment method or choose a subscription plan";
     badgeText = "Payment Issue";
     badgeColor = "danger";
-  } else if (isExpiredIssue) {
-    titleText = "Subscription Expired";
-    badgeText = "Plan Inactive";
-    badgeColor = "warning";
   }
 
   return (
@@ -109,14 +182,16 @@ const SubscriptionErrorPage: React.FC = () => {
               className={`size-16 rounded-2xl ${
                 isDeletedIssue || isSuspendedIssue
                   ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
-                  : "bg-amber-500/10 text-amber-500 border-amber-500/20"
+                  : isExpiredIssue
+                  ? "bg-amber-500/10 text-amber-500 border-amber-500/20"
+                  : "bg-blue-500/10 text-blue-500 border-blue-500/20"
               } flex items-center justify-center border shadow-inner`}
             >
               <FiAlertCircle className="size-8 animate-pulse" />
             </div>
             <div>
               <div className="flex justify-center mb-1">
-                <Chip size="sm" color={badgeColor} variant="flat" className="font-semibold text-xs">
+                <Chip size="sm" color={badgeColor} variant="flat" className="font-semibold text-xs uppercase tracking-wide">
                   {badgeText}
                 </Chip>
               </div>
@@ -128,7 +203,51 @@ const SubscriptionErrorPage: React.FC = () => {
               </p>
             </div>
           </div>
+
           <Divider />
+
+          {/* Expired Plan Details Banner */}
+          {isExpiredIssue && (
+            <div className="p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 dark:from-amber-500/15 dark:to-orange-500/15 border border-amber-500/30 rounded-2xl space-y-3">
+              <div className="p-3 bg-foreground/5 dark:bg-slate-800/40 rounded-xl border border-foreground/10 space-y-2.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-foreground/60 flex items-center gap-1.5 font-medium">
+                    <FiCalendar className="size-3.5 text-primary" /> Previous Plan:
+                  </span>
+                  <span className="font-bold text-foreground">
+                    {planName ? `${planName} Plan` : "Professional Plan"}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-foreground/60 flex items-center gap-1.5 font-medium">
+                    <FiClock className="size-3.5 text-rose-500" /> Expired Date:
+                  </span>
+                  <span className="font-extrabold text-rose-600 dark:text-rose-400">
+                    {formattedExpiredDate}
+                  </span>
+                </div>
+
+                {userEmail && (
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-foreground/60 flex items-center gap-1.5 font-medium">
+                      <FiUser className="size-3.5 text-foreground/60" /> Account:
+                    </span>
+                    <span className="font-semibold text-foreground/80 truncate max-w-[200px]">
+                      {userEmail}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-1">
+                <p className="text-xs text-amber-900 dark:text-amber-200/90 leading-relaxed font-medium">
+                  Clicking <strong>Buy / Choose Plan</strong> will take you directly to the plan selection screen. You won't need to re-create your account—just select your plan and proceed to checkout.
+                </p>
+              </div>
+            </div>
+          )}
+
           {isSuspendedIssue ? (
             <div className="p-4 bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30 rounded-xl space-y-2.5">
               <div className="flex items-start gap-2.5">
@@ -156,9 +275,6 @@ const SubscriptionErrorPage: React.FC = () => {
                       support@practiceroi.com
                     </a>.
                   </p>
-                  <p className="text-[11px] text-amber-700/80 dark:text-amber-300/80 pt-1">
-                    ⚠️ Workspace access and team member logins are temporarily disabled until the account is unsuspended by administration.
-                  </p>
                 </div>
               </div>
             </div>
@@ -179,13 +295,10 @@ const SubscriptionErrorPage: React.FC = () => {
                       support@practiceroi.com
                     </a>.
                   </p>
-                  <p className="text-[11px] text-rose-700/80 dark:text-rose-300/80 pt-1">
-                    ⚠️ If not recovered within 60 days, all your referrals, referrers, team members, locations, integrations, and associated data will be permanently deleted.
-                  </p>
                 </div>
               </div>
             </div>
-          ) : (
+          ) : !isExpiredIssue ? (
             <div className="p-4 bg-red-500/10 dark:bg-red-500/20 border border-red-500/30 rounded-xl space-y-2">
               <div className="flex items-start gap-2.5">
                 <FiAlertCircle className="size-5 text-red-500 shrink-0 mt-0.5" />
@@ -199,52 +312,33 @@ const SubscriptionErrorPage: React.FC = () => {
                 </div>
               </div>
             </div>
-          )}
-          <div className="space-y-2 text-center text-xs text-foreground/70 leading-relaxed">
-            {isSuspendedIssue ? (
-              <p>
-                Please contact support if you have questions regarding your account suspension or wish to reactivate your access.
-              </p>
-            ) : isPaymentIssue ? (
-              <p>
-                Please update your payment method or complete your pending payment on WordPress to restore workspace access.
-              </p>
-            ) : isExpiredIssue ? (
-              <p>
-                Your subscription plan has expired. Upgrade or renew your plan on WordPress to restore full access to your referrals and tools.
-              </p>
-            ) : isDeletedIssue ? (
-              <p>
-                Need to recover your account? Reach out to support below before your 60-day recovery window expires.
-              </p>
-            ) : (
-              <p>
-                Please manage your account on WordPress or contact support to resolve this access alert.
-              </p>
-            )}
-          </div>
+          ) : null}
+
           <div className="space-y-3 pt-2">
             {!isDeletedIssue && !isSuspendedIssue && (
               <Button
                 size="lg"
                 color="primary"
-                className="w-full font-semibold shadow-md text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                onPress={handleReturnToWordPress}
-                endContent={<FiExternalLink className="size-4" />}
+                className="w-full font-bold shadow-lg text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:scale-[0.99] transition-transform"
+                onPress={handleRedirectToChoosePlan}
+                startContent={<FiShoppingBag className="size-5" />}
+                endContent={<FiArrowRight className="size-4" />}
               >
-                {isPaymentIssue ? "Manage Payment on WordPress" : "Renew / Upgrade Plan on WordPress"}
+                Buy / Choose Plan
               </Button>
             )}
+
             <Button
               size="lg"
               color="primary"
               variant="flat"
-              className="w-full font-semibold shadow-md hover:shadow-lg transition-shadow"
+              className="w-full font-semibold shadow-sm"
               onPress={handleContactSupport}
               startContent={<FiLifeBuoy className="size-4" />}
             >
               {isDeletedIssue ? "Contact Support to Recover Account" : "Contact Support"}
             </Button>
+
             <div className="grid grid-cols-1 gap-2">
               <Button
                 size="sm"
@@ -257,7 +351,9 @@ const SubscriptionErrorPage: React.FC = () => {
               </Button>
             </div>
           </div>
+
           <Divider />
+
           <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-foreground/60 gap-2 pt-1">
             <div className="flex items-center gap-1.5 font-medium">
               <FiMail className="size-3.5 text-primary" />

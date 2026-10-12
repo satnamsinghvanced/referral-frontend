@@ -26,11 +26,11 @@ export const toggleLeadAutomation = async (id: string): Promise<any> => {
 };
 
 export const getLeadAutomationOverview = async (): Promise<any> => {
-  const response = await axios.get("/lead-automation/overview");
-  return response.data;
+  const response: any = await axios.get("/lead-automation/overview");
+  return response?.data ?? response;
 };
 
 export const getLeadAutomationPerformance = async (): Promise<any> => {
-  const response = await axios.get("/lead-automation/performance");
-  return response.data;
+  const response: any = await axios.get("/lead-automation/performance");
+  return response?.data ?? response;
 };

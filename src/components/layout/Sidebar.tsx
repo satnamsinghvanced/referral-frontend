@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { subscribeToEvent, unsubscribeFromEvent } from "../../services/sse";
 import { Link, NavLink, useLocation } from "react-router";
 import { Tooltip } from "@heroui/react";
-import { LuBuilding2, LuCalendar, LuDollarSign, LuLogOut, LuMessageSquare, LuQrCode, LuTarget, LuUsers, LuVideo } from "react-icons/lu";
+import { LuBuilding2, LuCalendar, LuClipboardCheck, LuDollarSign, LuLogOut, LuMessageSquare, LuQrCode, LuTarget, LuUsers, LuVideo } from "react-icons/lu";
 import { FiFileText, FiHome, FiPhone } from "react-icons/fi";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import clsx from "clsx";
@@ -36,6 +36,7 @@ interface NavigationRoute {
   badge?: string;
   requiredPermission?: string | string[] | undefined;
   requiredPlanAccess?: string | undefined;
+  adminOnly?: boolean;
 }
 
 const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarProps) => {
@@ -224,6 +225,18 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         color: "bg-blue-400 dark:bg-blue-900/40",
         // requiredPermission: ["Manage Integrations"],
       },
+      ...(isAdmin || isSuperAdmin
+        ? [
+            {
+              name: "Admin Review",
+              icon: LuClipboardCheck,
+              href: "/admin-review",
+              stats: 4,
+              color: "!bg-orange-500 !text-white font-bold",
+              adminOnly: true,
+            },
+          ]
+        : []),
       {
         name: "Settings",
         icon: HiOutlineCog,
@@ -245,6 +258,9 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
     ];
 
   const filteredRoutes = NAVIGATION_ROUTES.filter((route: any) => {
+    if (route.adminOnly && !isAdmin && !isSuperAdmin) {
+      return false;
+    }
     if (route.requiredPlanAccess && !isSuperAdmin) {
       if (planAccess && planAccess[route.requiredPlanAccess as keyof typeof planAccess] === false) {
         return false;

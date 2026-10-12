@@ -37,9 +37,22 @@ const LeadAutomations = ({ onBack }: LeadAutomationsProps) => {
   const [activeTab, setActiveTab] = useState<"overview" | "workflows" | "performance">("overview");
   const { data: automationsResponse, isLoading, isError } = useLeadAutomations();
   const { data: overviewResponse } = useLeadAutomationOverview();
-  const overviewData = overviewResponse?.data;
-  const { data: performanceResponse } = useLeadAutomationPerformance();
-  const perfData = performanceResponse?.data;
+  const { data: performanceResponse, isLoading: isPerfLoading } = useLeadAutomationPerformance();
+
+  const overviewData = useMemo(() => {
+    if (!overviewResponse) return null;
+    return overviewResponse?.data?.activeAutomations !== undefined
+      ? overviewResponse.data
+      : (overviewResponse?.activeAutomations !== undefined ? overviewResponse : overviewResponse?.data || overviewResponse);
+  }, [overviewResponse]);
+
+  const perfData = useMemo(() => {
+    if (!performanceResponse) return null;
+    return performanceResponse?.data?.effectiveness !== undefined
+      ? performanceResponse.data
+      : (performanceResponse?.effectiveness !== undefined ? performanceResponse : performanceResponse?.data || performanceResponse);
+  }, [performanceResponse]);
+
   const { mutateAsync: toggleAutomation } = useToggleLeadAutomation();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectedAutomation, setSelectedAutomation] = useState<any>(null);
@@ -349,6 +362,11 @@ const LeadAutomations = ({ onBack }: LeadAutomationsProps) => {
           {/* TAB 3: PERFORMANCE */}
           {/* ============================================================== */}
           {activeTab === "performance" && (
+            isPerfLoading && !perfData ? (
+              <div className="flex justify-center items-center h-80 border border-foreground/10 rounded-2xl bg-background shadow-none">
+                <LoadingState />
+              </div>
+            ) : (
             <div className="space-y-4">
               {/* Top 2 Cards: Effectiveness & Time Saved */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -519,6 +537,7 @@ const LeadAutomations = ({ onBack }: LeadAutomationsProps) => {
                 </CardBody>
               </Card>
             </div>
+            )
           )}
         </>
       )}
