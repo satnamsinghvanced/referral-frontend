@@ -21,6 +21,7 @@ import { CallRecord } from "../../types/call";
 import CallRecordCard from "./CallRecordCard";
 import CallRecordingModal from "./modal/CallRecordingModal";
 import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
+import { useTwilioVoice } from "../../providers/TwilioVoiceContext";
 
 const CallTracking = () => {
   const { data: twilioConfig, isPending: isTwilioConfigLoading } = useFetchTwilioConfig();
@@ -105,6 +106,7 @@ const CallTracking = () => {
       setIsSyncing(false);
     }
   }, [queryParams]);
+  const { openDialer } = useTwilioVoice();
   const HEADING_DATA = useMemo(
     () => ({
       heading: "Call Tracking",
@@ -112,8 +114,20 @@ const CallTracking = () => {
         "Monitor and manage your phone communications with Practice ROI Phone Service.",
       buttons: [
         {
+          label: "Call Patient",
+          onClick: (): void => {
+            openDialer();
+          },
+          icon: <FiPhoneCall fontSize={15} />,
+          variant: "solid" as const,
+          color: "success" as const,
+          className: "bg-emerald-600 hover:bg-emerald-700 text-white font-semibold cursor-pointer",
+        },
+        {
           label: "Refresh",
-          onClick: () => void handleRefresh(),
+          onClick: (): void => {
+            void handleRefresh();
+          },
           icon: (
             <LuRefreshCw
               fontSize={15}
@@ -126,7 +140,7 @@ const CallTracking = () => {
         },
       ],
     }),
-    [handleRefresh, isRefetching, isSyncing],
+    [handleRefresh, isRefetching, isSyncing, openDialer],
   );
   return (
     <>
