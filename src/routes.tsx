@@ -53,6 +53,9 @@ const MediaManagement = React.lazy(
 const Integrations = React.lazy(
   () => import("./pages/integrations/Integrations"),
 );
+const AdminReview = React.lazy(
+  () => import("./pages/admin-review/AdminReview"),
+);
 const PhoneService = React.lazy(
   () => import("./pages/phone-service/PhoneService"),
 );
@@ -124,6 +127,9 @@ const PermissionGuard = React.lazy(
 );
 const PlanGuard = React.lazy(
   () => import("./components/guards/PlanGuard"),
+);
+const AdminGuard = React.lazy(
+  () => import("./components/guards/AdminGuard"),
 );
 function AppRoutes() {
   const routesList: AppRoute[] = [
@@ -324,6 +330,14 @@ function AppRoutes() {
             <PlanGuard requiredAccess="sms_marketing">
               <PhoneService />
             </PlanGuard>
+          ),
+        },
+        {
+          path: "admin-review",
+          element: (
+            <AdminGuard>
+              <AdminReview />
+            </AdminGuard>
           ),
         },
         {

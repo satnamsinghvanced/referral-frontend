@@ -11,6 +11,7 @@ export const SignupHeader: React.FC<SignupHeaderProps> = ({
   subtitle,
   isTwilioCredits = false,
   isUpgrade = false,
+  isRenew = false,
   hideStepper = false,
   showThemeToggle = false,
   showBackButton = false,
@@ -19,20 +20,31 @@ export const SignupHeader: React.FC<SignupHeaderProps> = ({
   userName,
   userEmail,
 }) => {
-  const steps = isUpgrade
+  const isTwoStepFlow = Boolean(isUpgrade || isRenew);
+  const steps = isTwoStepFlow
     ? [
-        { number: 1, label: "Choose Plan" },
-        { number: 2, label: "Payment" },
-      ]
+      { number: 1, label: "Choose Plan" },
+      { number: 2, label: "Payment" },
+    ]
     : [
-        { number: 1, label: "Choose Plan" },
-        { number: 2, label: "Your Details" },
-        { number: 3, label: "Payment" },
-      ];
+      { number: 1, label: "Choose Plan" },
+      { number: 2, label: "Your Details" },
+      { number: 3, label: "Payment" },
+    ];
   const defaultTitle = isTwilioCredits ? (
     <>
       Add <span className="text-[#20a9f8]">Twilio Credits</span>
     </>
+  ) : isRenew ? (
+    currentStep === 1 ? (
+      <>
+        Renew Your <span className="text-[#20a9f8] dark:text-sky-400">Subscription Plan</span>
+      </>
+    ) : (
+      <>
+        Checkout & <span className="text-[#20a9f8] dark:text-sky-400">Reactivate Access</span>
+      </>
+    )
   ) : isUpgrade ? (
     currentStep === 1 ? (
       <>
@@ -58,15 +70,19 @@ export const SignupHeader: React.FC<SignupHeaderProps> = ({
   );
   const defaultSubtitle = isTwilioCredits
     ? "Complete your payment details to add credits and minutes immediately."
-    : isUpgrade
+    : isRenew
       ? currentStep === 1
-        ? "Choose the plan that's right for your practice. Upgrade or change plans anytime."
-        : "Complete payment details to activate your new plan."
-      : currentStep === 1
-        ? "Choose the plan that's right for your practice. All plans include a 14-day free trial with no credit card required."
-        : currentStep === 2
-          ? "Enter your details to get started in minutes. Cancel anytime."
-          : "Complete your payment details to start your free trial. Cancel anytime.";
+        ? "Choose a subscription plan to reactivate your practice workspace."
+        : "Complete payment to instantly restore full access."
+      : isUpgrade
+        ? currentStep === 1
+          ? "Choose the plan that's right for your practice. Upgrade or change plans anytime."
+          : "Complete payment details to activate your new plan."
+        : currentStep === 1
+          ? "Choose the plan that's right for your practice. All plans include a 14-day free trial with no credit card required."
+          : currentStep === 2
+            ? "Enter your details to get started in minutes. Cancel anytime."
+            : "Complete your payment details to start your free trial. Cancel anytime.";
   return (
     <div className="w-full max-w-5xl flex flex-col items-center relative mb-6">
       {(showThemeToggle || userName) && (

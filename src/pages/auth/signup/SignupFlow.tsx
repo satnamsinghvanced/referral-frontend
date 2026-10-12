@@ -18,43 +18,53 @@ import { StepPayment } from "./StepPayment";
 import { AppliedCoupon, SignupConfirmationData, PaymentFailedState, SignUpFormValues } from "./types";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 
-const validationSchema = Yup.object({
-  firstName: Yup.string()
-    .required("First name is required")
-    .matches(NAME_REGEX, "First name can only contain letters, spaces, hyphens and dots")
-    .min(2, "First name must be at least 2 characters")
-    .max(50, "First name must be less than 50 characters"),
-  lastName: Yup.string()
-    .required("Last name is required")
-    .matches(NAME_REGEX, "Last name can only contain letters, spaces, hyphens and dots")
-    .min(2, "Last name must be at least 2 characters")
-    .max(50, "Last name must be less than 50 characters"),
-  email: Yup.string()
-    .required("Email address is required")
-    .matches(EMAIL_REGEX, "Invalid email format"),
-  mobile: Yup.string()
-    .required("Phone number is required")
-    .test(
-      "valid-phone",
-      "Phone number must be a valid 10-digit number",
-      (val) => {
-        if (!val) return false;
-        const digits = val.replace(/\D/g, "");
-        return digits.length === 10;
-      }
-    ),
-  practiceName: Yup.string()
-    .required("Practice name is required"),
-  medicalSpecialty: Yup.string()
-    .required("Specialty is required"),
-  password: Yup.string()
-    .required("Password is required")
-    .matches(
-      PASSWORD_REGEX,
-      "Password must be at least 8 chars, include 1 uppercase, 1 lowercase, 1 number & 1 special character"
-    ),
-  messageAlert: Yup.boolean().oneOf([true], "You must accept account alerts"),
-});
+const getValidationSchema = (hasExistingAccount: boolean) =>
+  Yup.object({
+    firstName: Yup.string()
+      .required("First name is required")
+      .matches(NAME_REGEX, "First name can only contain letters, spaces, hyphens and dots")
+      .min(2, "First name must be at least 2 characters")
+      .max(50, "First name must be less than 50 characters"),
+    lastName: Yup.string()
+      .required("Last name is required")
+      .matches(NAME_REGEX, "Last name can only contain letters, spaces, hyphens and dots")
+      .min(2, "Last name must be at least 2 characters")
+      .max(50, "Last name must be less than 50 characters"),
+    email: Yup.string()
+      .required("Email address is required")
+      .matches(EMAIL_REGEX, "Invalid email format"),
+    mobile: Yup.string()
+      .required("Phone number is required")
+      .test(
+        "valid-phone",
+        "Phone number must be a valid 10-digit number",
+        (val) => {
+          if (!val) return false;
+          const digits = val.replace(/\D/g, "");
+          return digits.length === 10;
+        }
+      ),
+    practiceName: Yup.string()
+      .required("Practice name is required"),
+    medicalSpecialty: Yup.string()
+      .required("Specialty is required"),
+    password: hasExistingAccount
+      ? Yup.string().test(
+          "password-optional",
+          "Password must be at least 8 chars, include 1 uppercase, 1 lowercase, 1 number & 1 special character",
+          (val) => {
+            if (!val) return true;
+            return PASSWORD_REGEX.test(val);
+          }
+        )
+      : Yup.string()
+          .required("Password is required")
+          .matches(
+            PASSWORD_REGEX,
+            "Password must be at least 8 chars, include 1 uppercase, 1 lowercase, 1 number & 1 special character"
+          ),
+    messageAlert: Yup.boolean().oneOf([true], "You must accept account alerts"),
+  });
 
 const luhnCheck = (num: string) => {
   let sum = 0;
@@ -77,7 +87,19 @@ export const SignupFlow: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
+  const userId =
+    searchParams.get("userId") ||
+    searchParams.get("user_id") ||
+    searchParams.get("id") ||
+    (location.state as any)?.userId ||
+    "";
   const isUpgrade = location.pathname.includes("upgrade-plan") || searchParams.get("mode") === "upgrade";
+  const isRenew = Boolean(
+    userId ||
+    searchParams.get("mode") === "renew" ||
+    searchParams.get("isRenew") === "true" ||
+    (location.state as any)?.isRenew === true
+  );
   const retryState = location.state as
     | { step?: 1 | 2 | 3; formData?: Partial<SignUpFormValues>; planId?: string }
     | undefined;
@@ -160,14 +182,14 @@ export const SignupFlow: React.FC = () => {
     initialValues: {
       firstName: retryState?.formData?.firstName || searchParams.get("firstName") || searchParams.get("name") || "",
       lastName: retryState?.formData?.lastName || searchParams.get("lastName") || "",
-      email: retryState?.formData?.email || searchParams.get("email") || "",
+      email: retryState?.formData?.email || (location.state as any)?.email || searchParams.get("email") || "",
       mobile: retryState?.formData?.mobile ? formatPhoneNumber(retryState.formData.mobile) : (searchParams.get("mobile") || searchParams.get("phone") || ""),
       practiceName: retryState?.formData?.practiceName || searchParams.get("practiceName") || "",
       medicalSpecialty: retryState?.formData?.medicalSpecialty || searchParams.get("medicalSpecialty") || searchParams.get("specialty") || "",
       password: retryState?.formData?.password || "",
       messageAlert: retryState?.formData?.messageAlert || false,
     },
-    validationSchema,
+    validationSchema: getValidationSchema(Boolean(userId)),
     onSubmit: async (values, { setFieldError, setFieldTouched, setSubmitting }) => {
       try {
         setEmailInUseError("");
@@ -178,7 +200,9 @@ export const SignupFlow: React.FC = () => {
           res?.exists === true ||
           res?.data?.isAvailable === false ||
           res?.isAvailable === false;
-        if (isTaken) {
+        const resUserId = res?.data?.userId || res?.userId;
+        const isCurrentAccount = Boolean(userId && (resUserId ? String(resUserId) === String(userId) : true));
+        if (isTaken && !isCurrentAccount) {
           const errMsg = "This email address is already in use. Please sign in or use another email.";
           setEmailInUseError(errMsg);
           setFieldTouched("email", true, true);
@@ -206,6 +230,30 @@ export const SignupFlow: React.FC = () => {
       }
     },
   });
+
+  useEffect(() => {
+    const lookupExistingUser = async () => {
+      const emailToLookup = searchParams.get("email") || (location.state as any)?.email;
+      if (!emailToLookup && !userId) return;
+      try {
+        if (emailToLookup) {
+          const res: any = await checkEmailAvailability(emailToLookup);
+          const data = res?.data || res;
+          if (data?.exists) {
+            if (data.firstName && !formik.values.firstName) formik.setFieldValue("firstName", data.firstName);
+            if (data.lastName && !formik.values.lastName) formik.setFieldValue("lastName", data.lastName);
+            if (data.email && !formik.values.email) formik.setFieldValue("email", data.email);
+            if (data.phone && !formik.values.mobile) formik.setFieldValue("mobile", formatPhoneNumber(data.phone));
+            if (data.practiceName && !formik.values.practiceName) formik.setFieldValue("practiceName", data.practiceName);
+            if (data.medicalSpecialty && !formik.values.medicalSpecialty) formik.setFieldValue("medicalSpecialty", data.medicalSpecialty);
+          }
+        }
+      } catch (err) {
+        console.warn("Could not prefill user details:", err);
+      }
+    };
+    lookupExistingUser();
+  }, [userId]);
 
   const handleApplyCoupon = async (codeToApply?: string) => {
     const code = (codeToApply || couponCode).trim().toUpperCase();
@@ -405,15 +453,16 @@ export const SignupFlow: React.FC = () => {
     }
     try {
       const payload = {
+        userId: userId || undefined,
         firstName: formik.values.firstName,
         lastName: formik.values.lastName,
         email: formik.values.email,
         phone: formik.values.mobile,
         practiceName: formik.values.practiceName,
         medicalSpecialty: formik.values.medicalSpecialty,
-        password: formik.values.password,
+        password: formik.values.password || undefined,
         messageAlert: formik.values.messageAlert,
-        status: "trial",
+        status: "active",
         couponCode: appliedCoupon ? appliedCoupon.code : undefined,
         payment: {
           planId: selectedPlan?._id || selectedPlan?.planId || planParam || "professional",
@@ -483,6 +532,15 @@ export const SignupFlow: React.FC = () => {
       try {
         sessionStorage.setItem("practice_roi_last_signup", JSON.stringify(confirmationState));
       } catch (_) { }
+      if (isRenew || Boolean(userId)) {
+        addToast({
+          title: "Plan Purchased Successfully!",
+          description: `Your ${selectedPlan?.name || "selected"} plan has been activated. Please sign in to continue.`,
+          color: "success",
+        });
+        navigate("/signin");
+        return;
+      }
       addToast({
         title: "Account Created Successfully!",
         description: `Welcome to Practice ROI! Your 14-day free trial on the ${selectedPlan?.name || "Professional"} plan has started.`,
@@ -519,24 +577,27 @@ export const SignupFlow: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#070C18] text-slate-900 dark:text-slate-100 flex flex-col items-center py-8 px-4 sm:px-6">
       <SignupHeader
-        currentStep={isUpgrade && currentStep === 3 ? 2 : currentStep}
+        currentStep={(isUpgrade || isRenew) && currentStep === 3 ? 2 : currentStep}
         isUpgrade={isUpgrade}
+        isRenew={isRenew}
         showThemeToggle={true}
-        showBackButton={isUpgrade ? true : (currentStep === 2 || currentStep === 3)}
-        backButtonText={isUpgrade ? (currentStep === 3 ? "Back to Choose Plan" : "Back to Billing") : (currentStep === 3 ? "Back to Details" : "Back to Choose Plan")}
+        showBackButton={(isUpgrade || isRenew) ? (currentStep === 3) : (currentStep === 2 || currentStep === 3)}
+        backButtonText={(isUpgrade || isRenew) ? "Back to Choose Plan" : (currentStep === 3 ? "Back to Details" : "Back to Choose Plan")}
         onBackClick={() => {
-          if (isUpgrade) {
+          if (isUpgrade || isRenew) {
             if (currentStep === 3) {
               setCurrentStep(1);
-            } else {
+            } else if (isUpgrade) {
               navigate("/settings/billing");
+            } else {
+              navigate("/signin");
             }
           } else {
             setCurrentStep((prev) => (prev === 3 ? 2 : 1));
           }
         }}
         onStepClick={(step) => {
-          if (isUpgrade) {
+          if (isUpgrade || isRenew) {
             if (step === 1) setCurrentStep(1);
             else if (step === 2 && selectedPlan) setCurrentStep(3);
           } else {
@@ -557,7 +618,7 @@ export const SignupFlow: React.FC = () => {
           setBillingCycle={setBillingCycle}
           onContinue={(chosenPlan) => {
             if (chosenPlan) setSelectedPlan(chosenPlan);
-            if (isUpgrade) {
+            if (isUpgrade || isRenew) {
               setCurrentStep(3);
             } else {
               setCurrentStep(2);
@@ -566,7 +627,7 @@ export const SignupFlow: React.FC = () => {
           loading={loadingPlans}
         />
       )}
-      {currentStep === 2 && !isUpgrade && (
+      {currentStep === 2 && !isUpgrade && !isRenew && (
         <StepYourDetails
           onContinue={() => formik.handleSubmit()}
           onBack={() => setCurrentStep(1)}
@@ -575,15 +636,16 @@ export const SignupFlow: React.FC = () => {
           setEmailError={setEmailInUseError}
           selectedPlan={selectedPlan}
           billingCycle={billingCycle}
+          isExistingAccount={Boolean(userId)}
         />
       )}
       {currentStep === 3 && (
         <StepPayment
           selectedPlan={selectedPlan}
           billingCycle={billingCycle}
-          isUpgrade={isUpgrade}
+          isUpgrade={isUpgrade || isRenew}
           onBack={() => {
-            if (isUpgrade) {
+            if (isUpgrade || isRenew) {
               setCurrentStep(1);
             } else {
               setCurrentStep(2);

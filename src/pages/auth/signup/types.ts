@@ -18,6 +18,7 @@ export interface SignupHeaderProps {
   subtitle?: string;
   isTwilioCredits?: boolean;
   isUpgrade?: boolean;
+  isRenew?: boolean;
   hideStepper?: boolean;
   showThemeToggle?: boolean;
   showBackButton?: boolean;
@@ -45,6 +46,7 @@ export interface StepYourDetailsProps {
   setEmailError?: (err: string) => void;
   selectedPlan?: PlanData | null;
   billingCycle?: "monthly" | "annual";
+  isExistingAccount?: boolean;
 }
 
 export interface AppliedCoupon {

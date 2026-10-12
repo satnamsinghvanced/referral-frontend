@@ -98,25 +98,46 @@ const SignIn = () => {
                 error.response?.data?.error ||
                 error.response?.data?.data ||
                 error.response?.data;
+              const userId =
+                resData?.userId ||
+                error.response?.data?.userId ||
+                (typeof resData === "object" ? resData?.userId : undefined) ||
+                "";
+              const isDeleted = Boolean(
+                resData?.isDeleted ||
+                resData?.status === "deleted" ||
+                (lowerMsg.includes("recovery period") && lowerMsg.includes("deleted"))
+              );
+              const isSuspended = Boolean(
+                resData?.isSuspended ||
+                resData?.status === "suspended" ||
+                lowerMsg.includes("suspended") ||
+                lowerMsg.includes("suspension")
+              );
+              const isExpired = Boolean(
+                resData?.isExpired ||
+                resData?.status === "expired" ||
+                lowerMsg.includes("expired") ||
+                lowerMsg.includes("no active") ||
+                lowerMsg.includes("could not be processed")
+              );
+
               navigate("/subscription-error", {
                 state: {
                   message: errorMessage,
                   email: values.email,
-                  isSuspended: Boolean(
-                    resData?.isSuspended ||
-                    lowerMsg.includes("suspended") ||
-                    lowerMsg.includes("suspension")
-                  ),
+                  userId,
+                  status: resData?.status,
+                  isSuspended,
                   suspensionReason:
                     resData?.suspensionReason ||
                     (lowerMsg.includes("reason:")
                       ? errorMessage.split(/reason:\s*/i)[1]?.split(".")[0]?.trim()
                       : ""),
-                  isDeleted: Boolean(
-                    resData?.isDeleted ||
-                    lowerMsg.includes("deleted") ||
-                    lowerMsg.includes("deactivated")
-                  ),
+                  isDeleted,
+                  isExpired,
+                  expiredAt: resData?.expiredAt,
+                  planName: resData?.planName,
                 },
               });
             }
