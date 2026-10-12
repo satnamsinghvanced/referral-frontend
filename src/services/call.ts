@@ -22,8 +22,3 @@ export const deleteCallRecord = async (id: string): Promise<any> => {
   const { data } = await axios.delete(`/twilio-record/${id}`);
   return data;
 };
-
-export const getTwilioVoiceToken = async (): Promise<{ identity: string; token: string }> => {
-  const { data } = await axios.get(`/twilio-record/token`);
-  return data;
-};

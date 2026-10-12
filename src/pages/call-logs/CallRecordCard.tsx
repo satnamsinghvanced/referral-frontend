@@ -1,16 +1,14 @@
 import { Button, Chip } from "@heroui/react";
 import { useState } from "react";
-import { FiClock, FiPhoneCall, FiPhoneIncoming, FiPhoneOutgoing, FiPlay } from "react-icons/fi";
+import { FiClock, FiPhoneIncoming, FiPhoneOutgoing, FiPlay } from "react-icons/fi";
 import { LuTrash2 } from "react-icons/lu";
 import { CallRecord } from "../../types/call";
 import { timeAgo as formatTimeAgo } from "../../utils/timeAgo";
 import CallStatusChip from "../../components/chips/CallStatusChip";
 import { useDeleteCallRecord } from "../../hooks/useCall";
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
-import { useTwilioVoice } from "../../providers/TwilioVoiceContext";
 
 export default function CallRecordCard({ record, onPlayClick }: { record: CallRecord; onPlayClick: () => void }) {
-  const { openDialer } = useTwilioVoice();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { mutate: deleteRecord, isPending: isDeleting } = useDeleteCallRecord();
   const handleDelete = () => {
@@ -27,8 +25,7 @@ export default function CallRecordCard({ record, onPlayClick }: { record: CallRe
     ...(record.appointment ? [{ label: "Appointment", type: "action" }] : []),
   ];
   const timeAgo = record.date ? formatTimeAgo(record.date) : "";
-  const patientPhone = record.contact?.phone || (record.direction === "Incoming" ? record.from : record.to);
-
+  
   return (
     <>
       <div className="flex items-center justify-between p-3.5 border border-foreground/10 rounded-lg bg-background max-sm:flex-col max-sm:gap-4 max-sm:items-start">
@@ -82,18 +79,6 @@ export default function CallRecordCard({ record, onPlayClick }: { record: CallRe
                 </div>
               </div>
               <div className="flex space-x-2">
-                {patientPhone && (
-                  <Button
-                    size="sm"
-                    variant="bordered"
-                    className="border-small px-0 !min-w-8 text-emerald-600 border-emerald-500/30 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
-                    aria-label="Call patient"
-                    title={`Call ${patientPhone}`}
-                    onPress={() => openDialer(patientPhone)}
-                  >
-                    <FiPhoneCall className="size-3.5" />
-                  </Button>
-                )}
                 <Button
                   size="sm"
                   variant="bordered"
@@ -120,30 +105,16 @@ export default function CallRecordCard({ record, onPlayClick }: { record: CallRe
               <span className="text-xs text-gray-500 dark:text-foreground/40 italic">
                 No recording available
               </span>
-              <div className="flex space-x-2">
-                {patientPhone && (
-                  <Button
-                    size="sm"
-                    variant="bordered"
-                    className="border-small px-0 !min-w-8 text-emerald-600 border-emerald-500/30 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
-                    aria-label="Call patient"
-                    title={`Call ${patientPhone}`}
-                    onPress={() => openDialer(patientPhone)}
-                  >
-                    <FiPhoneCall className="size-3.5" />
-                  </Button>
-                )}
-                <Button
-                  size="sm"
-                  variant="bordered"
-                  color="danger"
-                  className="border-small px-0 !min-w-8 text-danger hover:bg-danger/10"
-                  aria-label="Delete call record"
-                  onPress={() => setIsDeleteModalOpen(true)}
-                >
-                  <LuTrash2 className="size-3.5" />
-                </Button>
-              </div>
+              <Button
+                size="sm"
+                variant="bordered"
+                color="danger"
+                className="border-small px-0 !min-w-8 text-danger hover:bg-danger/10"
+                aria-label="Delete call record"
+                onPress={() => setIsDeleteModalOpen(true)}
+              >
+                <LuTrash2 className="size-3.5" />
+              </Button>
             </div>
           )}
         </div>

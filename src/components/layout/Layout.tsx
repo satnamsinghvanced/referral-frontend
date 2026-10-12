@@ -9,9 +9,6 @@ import { useBilling } from "../../hooks/settings/useBilling";
 import { useRolePermissions } from "../../hooks/useRolePermissions";
 import { FiUser, FiArrowLeft, FiLogOut } from "react-icons/fi";
 import { setCredentials } from "../../store/authSlice";
-import { TwilioVoiceProvider } from "../../providers/TwilioVoiceContext";
-import BrowserPhoneDialer from "../common/BrowserPhoneDialer";
-import DialerFloatingButton from "../common/DialerFloatingButton";
 
 const Layout = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -185,18 +182,8 @@ const Layout = () => {
           <Outlet />
         </main>
       </div>
-      <BrowserPhoneDialer />
-      <DialerFloatingButton />
     </div>
   );
 };
 
-const LayoutWithVoice = () => {
-  return (
-    <TwilioVoiceProvider>
-      <Layout />
-    </TwilioVoiceProvider>
-  );
-};
-
-export default LayoutWithVoice;
+export default Layout;
