@@ -70,7 +70,9 @@ const Team: React.FC = () => {
     (m: TeamMember) =>
       m.email?.toLowerCase() !== mainAdmin?.email?.toLowerCase() &&
       m._id !== mainAdmin?._id &&
-      m._id !== mainAdmin?.userId
+      m._id !== mainAdmin?.userId &&
+      m.status !== "deleted" &&
+      !(m as any).isDeleted
   );
 
   const sortedMembers = useMemo(() => {
@@ -97,7 +99,7 @@ const Team: React.FC = () => {
   }, [mainAdmin, currentUser]);
 
   const totalTeamMembersCount =
-    (membersData?.totalData || filteredMembers?.length || 0) + (mainAdmin ? 1 : 0);
+    (filteredMembers?.length || 0) + (mainAdmin ? 1 : 0);
   const currentTeamCount = totalTeamMembersCount;
 
   const planPrice = billingData?.price;
@@ -423,13 +425,14 @@ const Team: React.FC = () => {
                           <FiKey className="size-3.5" /> Reset Password
                         </Button>
 
-                        {member.role?.role !== "Admin" && (
+                        {!isMemberCurrentUser && (
                           <Button
                             isIconOnly
                             size="sm"
                             variant="bordered"
                             color="danger"
                             className="border-small"
+                            title="Delete Team Member"
                             onPress={() => handleDeleteClick(member._id)}
                           >
                             <FiTrash2 className="size-3.5" />

@@ -231,7 +231,6 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
               name: "Admin Review",
               icon: LuClipboardCheck,
               href: "/admin-review",
-              stats: 4,
               color: "!bg-orange-500 !text-white font-bold",
               adminOnly: true,
             },

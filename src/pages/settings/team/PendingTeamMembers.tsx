@@ -1,11 +1,13 @@
 import { Button, Card, CardBody, CardHeader } from "@heroui/react";
 import React, { useState } from "react";
-import { FiMail } from "react-icons/fi";
+import { FiMail, FiTrash2 } from "react-icons/fi";
 import EmptyState from "../../../components/common/EmptyState";
 import TeamSkeleton from "../../../components/skeletons/TeamSkeleton";
+import DeleteConfirmationModal from "../../../components/common/DeleteConfirmationModal";
 import {
   useFetchPendingTeamMembers,
   useResendInvite,
+  useDeleteTeamMember,
 } from "../../../hooks/settings/useTeam";
 import { TeamMember } from "../../../services/settings/team";
 import { formatDateToYYYYMMDD } from "../../../utils/formatDateToYYYYMMDD";
@@ -49,10 +51,29 @@ const PendingTeamMembers = () => {
   const { mutate: resendInvite } = useResendInvite();
   const [resendingId, setResendingId] = useState<string | null>(null);
 
+  const { mutate: deleteMember, isPending: deleteIsPending } = useDeleteTeamMember();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteMemberId, setDeleteMemberId] = useState<string>("");
+
   const handleResend = (id: string) => {
     setResendingId(id);
     resendInvite(id, {
       onSettled: () => setResendingId(null),
+    });
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setDeleteMemberId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (!deleteMemberId) return;
+    deleteMember(deleteMemberId, {
+      onSuccess: () => {
+        setIsDeleteModalOpen(false);
+        setDeleteMemberId("");
+      },
     });
   };
 
@@ -127,6 +148,18 @@ const PendingTeamMembers = () => {
                 >
                   Resend
                 </Button>
+
+                <Button
+                  size="sm"
+                  variant="bordered"
+                  color="danger"
+                  isIconOnly
+                  className="border-small"
+                  title="Cancel Invitation"
+                  onPress={() => handleDeleteClick(member._id)}
+                >
+                  <FiTrash2 className="size-3.5" />
+                </Button>
               </div>
             </div>
           ))
@@ -150,6 +183,18 @@ const PendingTeamMembers = () => {
           />
         )}
       </CardBody>
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeleteMemberId("");
+        }}
+        onConfirm={handleDeleteConfirm}
+        isLoading={deleteIsPending}
+        title="Cancel Invitation"
+        description="Are you sure you want to cancel and delete this pending team invitation? This action cannot be undone."
+      />
     </Card>
   );
 };

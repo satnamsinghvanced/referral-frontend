@@ -102,16 +102,17 @@ export const AdminReview: React.FC = () => {
   }, [locations, getLocationColor]);
 
   // Load live data from the backend API with filters and pagination
-  const loadData = React.useCallback(async () => {
+  const loadData = React.useCallback(async (overrideStatus?: string) => {
     try {
       setIsLoadingData(true);
       const selectedLocObj = locationOptions.find((l) => l.name === selectedLocation);
       const locationIdParam = selectedLocObj && selectedLocObj.id !== "all" ? selectedLocObj.id : undefined;
 
+      const effectiveStatus = overrideStatus !== undefined ? overrideStatus : selectedStatus;
       const res = await fetchAdminReviewData({
         locationId: locationIdParam,
         module: selectedModule !== "all" ? selectedModule : undefined,
-        status: selectedStatus !== "All Statuses" ? selectedStatus : undefined,
+        status: effectiveStatus !== "All Statuses" ? effectiveStatus : undefined,
         priority: selectedPriority !== "All Priorities" ? selectedPriority : undefined,
         search: debouncedSearch.trim() || undefined,
         page: currentPage,
@@ -176,7 +177,7 @@ export const AdminReview: React.FC = () => {
     setItems((prev) =>
       prev.map((item) => (item.id === id ? { ...item, status: nextStatus } : item))
     );
-   
+
     try {
       await updateAdminReviewItemStatus(id, {
         status: nextStatus,
@@ -188,30 +189,57 @@ export const AdminReview: React.FC = () => {
       setItems((prev) =>
         prev.map((item) => (item.id === id ? { ...item, status: targetItem.status } : item))
       );
-    
+
     }
   };
 
   const handleArchive = async (id: string) => {
     const targetItem = items.find((i) => i.id === id);
     if (!targetItem) return;
-    const nextStatus = targetItem.status === "archived" ? "inReview" : "archived";
+    const isCurrentlyArchived = targetItem.status === "archived";
+    const nextStatus = isCurrentlyArchived ? "inReview" : "archived";
 
-    setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, status: nextStatus } : item))
-    );
+    // Optimistically update:
+    // If archiving from active view, remove it immediately from current items list
+    if (!isCurrentlyArchived && selectedStatus !== "archived") {
+      setItems((prev) => prev.filter((item) => item.id !== id));
+      setApiStats((prev) => ({
+        ...prev,
+        archived: prev.archived + 1,
+        inReview: targetItem.status === "inReview" ? Math.max(0, prev.inReview - 1) : prev.inReview,
+        flagged: targetItem.status === "flagged" ? Math.max(0, prev.flagged - 1) : prev.flagged,
+      }));
+      addToast({
+        title: "Archived",
+        description: "Review item moved to Archive. Select Archived filter to view it.",
+        color: "success",
+      });
+    } else if (isCurrentlyArchived) {
+      addToast({
+        title: "Restored",
+        description: "Review item unarchived and returned to review queue.",
+        color: "success",
+      });
+    } else {
+      setItems((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, status: nextStatus } : item))
+      );
+    }
 
     try {
       await updateAdminReviewItemStatus(id, {
         status: nextStatus,
         module: targetItem.module,
       });
-      loadData();
+      if (isCurrentlyArchived) {
+        setSelectedStatus("All Statuses");
+        await loadData("All Statuses");
+      } else {
+        await loadData();
+      }
     } catch (err: any) {
       console.error("Failed to persist archive status:", err);
-      setItems((prev) =>
-        prev.map((item) => (item.id === id ? { ...item, status: targetItem.status } : item))
-      );
+      loadData();
       addToast({
         title: "Update Failed",
         description: "Failed to persist archive status on the server.",
@@ -267,7 +295,7 @@ export const AdminReview: React.FC = () => {
 
   const HEADING_DATA = {
     heading: "Admin Review",
-    subHeading: "Review and manage content across all locations and modules",
+    subHeading: "Review team member performance, converted leads, scheduled calls, referrals, and partner visits",
     buttons: [
       {
         label: "Refresh",
@@ -290,9 +318,6 @@ export const AdminReview: React.FC = () => {
           Pending action
         </span>
       ),
-      onClick: () => {
-        setSelectedStatus((prev) => (prev === "inReview" ? "All Statuses" : "inReview"));
-      },
     },
     {
       heading: "Flagged",
@@ -303,9 +328,6 @@ export const AdminReview: React.FC = () => {
           Requires review
         </span>
       ),
-      onClick: () => {
-        setSelectedStatus((prev) => (prev === "flagged" ? "All Statuses" : "flagged"));
-      },
     },
     {
       heading: "Archived",
@@ -316,10 +338,6 @@ export const AdminReview: React.FC = () => {
           Archived records
         </span>
       ),
-      onClick: () => {
-        setSelectedStatus((prev) => (prev === "archived" ? "All Statuses" : "archived"));
-        setCurrentPage(1);
-      },
     },
     {
       heading: "High Priority",
@@ -330,10 +348,6 @@ export const AdminReview: React.FC = () => {
           Urgent attention
         </span>
       ),
-      onClick: () => {
-        setSelectedPriority((prev) => (prev === "High" ? "All Priorities" : "High"));
-        setCurrentPage(1);
-      },
     },
   ];
 
@@ -447,20 +461,18 @@ export const AdminReview: React.FC = () => {
                   setSelectedModule(tab.key);
                   setCurrentPage(1);
                 }}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border ${
-                  isSelected
-                    ? "bg-foreground text-background border-foreground shadow-sm"
-                    : "bg-content1/40 dark:bg-content1/20 text-foreground/70 border-foreground/10 hover:border-foreground/25 hover:text-foreground"
-                }`}
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border ${isSelected
+                  ? "bg-foreground text-background border-foreground shadow-sm"
+                  : "bg-content1/40 dark:bg-content1/20 text-foreground/70 border-foreground/10 hover:border-foreground/25 hover:text-foreground"
+                  }`}
               >
                 {Icon && <Icon className="size-3.5 shrink-0" />}
                 <span>{tab.label}</span>
                 <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                    isSelected
-                      ? "bg-background/25 text-background"
-                      : "bg-foreground/10 text-foreground/80"
-                  }`}
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${isSelected
+                    ? "bg-background/25 text-background"
+                    : "bg-foreground/10 text-foreground/80"
+                    }`}
                 >
                   {count}
                 </span>
@@ -480,25 +492,14 @@ export const AdminReview: React.FC = () => {
               <div className="size-12 rounded-full bg-content1/50 flex items-center justify-center text-gray-400">
                 <FiCheck className="size-6 text-emerald-500" />
               </div>
-              <h3 className="font-bold text-sm text-foreground">No Items in This View</h3>
-              <p className="text-xs text-gray-500 max-w-sm">
-                All review items under this filter have been handled or no records match your search criteria.
+              <h3 className="font-bold text-sm text-foreground">
+                {stats.total === 0 ? "No Team Member Activities Yet" : "No Items in This View"}
+              </h3>
+              <p className="text-xs text-gray-500 max-w-md">
+                {stats.total === 0
+                  ? "Admin Review monitors activities performed by your team members. Once your invited team members join and handle patient conversations, calls, or leads, their records will appear here for review."
+                  : "All review items under this filter have been handled or no records match your search criteria."}
               </p>
-              <Button
-                size="sm"
-                variant="flat"
-                onPress={() => {
-                  setSelectedModule("all");
-                  setSelectedLocation("All Locations");
-                  setSelectedStatus("All Statuses");
-                  setSelectedPriority("All Priorities");
-                  setSearchQuery("");
-                  setCurrentPage(1);
-                }}
-                className="text-xs font-medium"
-              >
-                Reset Filters
-              </Button>
             </div>
           ) : (
             <div className="space-y-3">
@@ -513,217 +514,278 @@ export const AdminReview: React.FC = () => {
                     className="border border-foreground/10 rounded-xl p-4 bg-white dark:bg-content1 hover:border-foreground/20 transition-all"
                   >
                     <CardBody className="p-0 overflow-hidden space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                      <div className="flex items-center gap-2.5 flex-wrap">
-                        <div className="size-7 rounded-lg bg-content1/60 border border-foreground/5 flex items-center justify-center shrink-0">
-                          {getModuleIcon(item.module)}
-                        </div>
-
-                        <h4 className="font-semibold text-sm text-foreground">
-                          {item.title}
-                        </h4>
-
-                        {item.priority === "High" && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-500 border border-rose-500/20">
-                            High
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-2 shrink-0">
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-content1/50 border border-foreground/10 text-xs text-foreground/80">
-                          <span
-                            className="size-2 rounded-full shrink-0"
-                            style={{ backgroundColor: item.locationColor }}
-                          />
-                          <span className="font-medium text-[11px]">{item.location}</span>
-                        </div>
-
-                        <Chip
-                          size="sm"
-                          variant="flat"
-                          className={`text-[11px] font-semibold capitalize ${
-                            item.status === "inReview"
-                              ? "bg-sky-500/10 text-sky-500 border border-sky-500/20"
-                              : item.status === "flagged"
-                              ? "bg-red-500/10 text-red-500 border border-red-500/20"
-                              : "bg-foreground/10 text-foreground/60 border border-foreground/10"
-                          }`}
-                        >
-                          {item.status === "inReview" ? "In Review" : item.status === "flagged" ? "Flagged" : "Archived"}
-                        </Chip>
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-foreground/85 leading-relaxed font-sans">
-                      {item.content}
-                    </p>
-
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-foreground/60">
-                      <div className="flex items-center gap-1">
-                        <FiUser className="size-3 text-foreground/40" />
-                        <span className="text-foreground/80 font-medium">
-                          {item.author}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        <FiClock className="size-3 text-foreground/40" />
-                        <span>{item.timeAgo}</span>
-                      </div>
-
-                      {item.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-2 py-0.5 rounded-md bg-content1/60 border border-foreground/5 text-[10px] font-medium text-foreground/75"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-
-                    {item.voiceMeta && (
-                      <div className="p-2.5 bg-content1/40 border border-foreground/5 rounded-xl flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-2.5">
-                          <button
-                            onClick={() => handlePlayVoice(item.id)}
-                            className="size-7 rounded-full bg-orange-500 text-white flex items-center justify-center hover:bg-orange-600 transition-colors shadow-sm cursor-pointer shrink-0"
-                          >
-                            {isAudioPlaying ? (
-                              <FiPause className="size-3.5" />
-                            ) : (
-                              <FiPlay className="size-3.5 ml-0.5" />
-                            )}
-                          </button>
-                          <div>
-                            <span className="text-[11px] font-semibold text-foreground block">
-                              recorded via {item.voiceMeta.recordedVia} — {item.voiceMeta.duration}
-                            </span>
-                            <span className="text-[10px] text-foreground/50">
-                              {isAudioPlaying ? "Playing audio preview..." : "Click to listen to recording"}
-                            </span>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                          <div className="size-7 rounded-lg bg-content1/60 border border-foreground/5 flex items-center justify-center shrink-0">
+                            {getModuleIcon(item.module)}
                           </div>
+
+                          <h4 className="font-semibold text-sm text-foreground">
+                            {item.title}
+                          </h4>
+
+                          {item.priority === "High" && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-500 border border-rose-500/20">
+                              High
+                            </span>
+                          )}
                         </div>
 
-                        <div className="flex items-center gap-1 h-5 shrink-0 px-2">
-                          {[40, 70, 30, 90, 60, 100, 50, 80, 45, 65, 35, 85].map((h, i) => (
+                        <div className="flex items-center gap-2 shrink-0">
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-50 dark:bg-sky-950/30 border border-sky-100 dark:border-sky-900 text-xs text-sky-700 dark:text-sky-300">
                             <span
-                              key={i}
-                              className={`w-0.5 rounded-full transition-all duration-300 ${
-                                isAudioPlaying
+                              className="size-2 rounded-full shrink-0"
+                              style={{ backgroundColor: item.locationColor || "#0ea5e9" }}
+                            />
+                            <span className="font-medium text-[11px]">{item.location}</span>
+                          </div>
+
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${item.status === "inReview"
+                              ? "bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800"
+                              : item.status === "flagged"
+                                ? "bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800"
+                                : "bg-foreground/10 text-foreground/60 border border-foreground/15"
+                              }`}
+                          >
+                            {item.status === "inReview" ? (
+                              <>
+                                <FiEye className="size-3.5" />
+                                <span>In Review</span>
+                              </>
+                            ) : item.status === "flagged" ? (
+                              <>
+                                <FiFlag className="size-3.5" />
+                                <span>Flagged</span>
+                              </>
+                            ) : (
+                              <>
+                                <FiArchive className="size-3.5" />
+                                <span>Archived</span>
+                              </>
+                            )}
+                          </span>
+                        </div>
+                      </div>
+
+                      <p className="text-xs text-foreground/85 leading-relaxed font-sans">
+                        {item.content}
+                      </p>
+
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-foreground/60">
+                        <div className="flex items-center gap-1.5">
+                          <FiUser className="size-3 text-foreground/40" />
+                          <span className="text-foreground/80 font-medium">
+                            {item.authorRole || "Staff"}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <FiClock className="size-3 text-foreground/40" />
+                          <span>{item.timeAgo && !item.timeAgo.includes("NaN") ? item.timeAgo : "Recently"}</span>
+                        </div>
+
+                        {item.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-2.5 py-0.5 rounded-full bg-content1/70 border border-foreground/10 text-[10px] font-medium text-foreground/80"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+
+                      {item.voiceMeta && (
+                        <div className="p-2.5 bg-content1/40 border border-foreground/5 rounded-xl flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-2.5">
+                            <button
+                              onClick={() => handlePlayVoice(item.id)}
+                              className="size-7 rounded-full bg-orange-500 text-white flex items-center justify-center hover:bg-orange-600 transition-colors shadow-sm cursor-pointer shrink-0"
+                            >
+                              {isAudioPlaying ? (
+                                <FiPause className="size-3.5" />
+                              ) : (
+                                <FiPlay className="size-3.5 ml-0.5" />
+                              )}
+                            </button>
+                            <div>
+                              <span className="text-[11px] font-semibold text-foreground block">
+                                recorded via {item.voiceMeta.recordedVia} — {item.voiceMeta.duration}
+                              </span>
+                              <span className="text-[10px] text-foreground/50">
+                                {isAudioPlaying ? "Playing audio preview..." : "Click to listen to recording"}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1 h-5 shrink-0 px-2">
+                            {[40, 70, 30, 90, 60, 100, 50, 80, 45, 65, 35, 85].map((h, i) => (
+                              <span
+                                key={i}
+                                className={`w-0.5 rounded-full transition-all duration-300 ${isAudioPlaying
                                   ? "bg-orange-500 animate-pulse"
                                   : "bg-foreground/20"
-                              }`}
-                              style={{ height: isAudioPlaying ? `${h}%` : "35%" }}
-                            />
-                          ))}
+                                  }`}
+                                style={{ height: isAudioPlaying ? `${h}%` : "35%" }}
+                              />
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {isExpanded && (
-                      <div className="p-3.5 bg-content1/30 border border-foreground/5 rounded-xl space-y-2.5 text-xs text-foreground/80 animate-in fade-in duration-200">
-                        <span className="text-[10px] font-bold text-foreground/50 uppercase tracking-wider block">
-                          Extended Review Metadata
-                        </span>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-1 text-xs">
-                          {item.details?.patientName && (
-                            <div>
-                              <span className="text-[11px] text-foreground/50 block">Patient Name:</span>
-                              <strong className="text-foreground">{item.details.patientName}</strong>
+                      {isExpanded && (
+                        <div className="pt-3 border-t border-foreground/10 space-y-3 animate-in fade-in duration-200">
+                          {/* Staff Name with avatar */}
+                          <div className="flex items-center gap-2 text-xs">
+                            <div className="size-6 rounded-full bg-purple-100 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
+                              <FiUser className="size-3.5" />
+                            </div>
+                            <span className="text-foreground/70">
+                              Staff: <strong className="text-foreground font-semibold">{item.details?.staffName || item.author}</strong>
+                            </span>
+                          </div>
+
+                          {/* Platform & Unread Count */}
+                          <div className="text-xs text-foreground/70 pl-8">
+                            <span>
+                              Platform: <span className="font-mono text-foreground/90">{item.details?.platform || item.details?.channel || "web-sms"}</span>
+                              {item.details?.unreadCount !== undefined && (
+                                <span> · {item.details.unreadCount} unread</span>
+                              )}
+                            </span>
+                          </div>
+
+                          {/* Additional Details if available */}
+                          {(item.details?.patientName || item.details?.phone || item.details?.treatment || item.details?.notes) && (
+                            <div className="ml-8 p-3 bg-content1/30 border border-foreground/5 rounded-xl space-y-1.5 text-xs text-foreground/80">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                                {item.details?.patientName && (
+                                  <div>
+                                    <span className="text-[11px] text-foreground/50 block">Patient Name:</span>
+                                    <strong className="text-foreground">{item.details.patientName}</strong>
+                                  </div>
+                                )}
+                                {item.details?.phone && (
+                                  <div>
+                                    <span className="text-[11px] text-foreground/50 block">Contact Phone:</span>
+                                    <strong className="text-foreground">{item.details.phone}</strong>
+                                  </div>
+                                )}
+                                {item.details?.treatment && (
+                                  <div>
+                                    <span className="text-[11px] text-foreground/50 block">Procedure / Interest:</span>
+                                    <strong className="text-foreground">{item.details.treatment}</strong>
+                                  </div>
+                                )}
+                                {item.details?.notes && (
+                                  <div className="sm:col-span-2">
+                                    <span className="text-[11px] text-foreground/50 block">Reviewer Notes:</span>
+                                    <p className="text-xs text-foreground/75 italic">"{item.details.notes}"</p>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           )}
-                          {item.details?.phone && (
-                            <div>
-                              <span className="text-[11px] text-foreground/50 block">Contact Phone:</span>
-                              <strong className="text-foreground">{item.details.phone}</strong>
+
+                          {/* Actions Row */}
+                          <div className="flex items-center justify-between pt-2">
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="bordered"
+                                onPress={() => handleFlag(item.id)}
+                                className={`text-xs font-medium px-3 h-8 rounded-lg border ${item.status === "flagged"
+                                  ? "bg-red-500/10 text-red-500 border-red-500/30 font-semibold"
+                                  : "border-rose-200 dark:border-rose-900/50 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                                  }`}
+                                startContent={<FiFlag className="size-3.5" />}
+                              >
+                                {item.status === "flagged" ? "Flagged" : "Flag"}
+                              </Button>
+
+                              <Button
+                                size="sm"
+                                variant="bordered"
+                                onPress={() => handleArchive(item.id)}
+                                className={`text-xs font-medium px-3 h-8 rounded-lg border ${item.status === "archived"
+                                  ? "bg-foreground/15 text-foreground border-foreground/30 font-semibold"
+                                  : "border-foreground/15 text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+                                  }`}
+                                startContent={<FiArchive className="size-3.5" />}
+                              >
+                                {item.status === "archived" ? "Unarchive" : "Archive"}
+                              </Button>
                             </div>
-                          )}
-                          {item.details?.treatment && (
-                            <div>
-                              <span className="text-[11px] text-foreground/50 block">Procedure / Interest:</span>
-                              <strong className="text-foreground">{item.details.treatment}</strong>
-                            </div>
-                          )}
-                          {item.details?.channel && (
-                            <div>
-                              <span className="text-[11px] text-foreground/50 block">Source Channel:</span>
-                              <strong className="text-foreground">{item.details.channel}</strong>
-                            </div>
-                          )}
-                          {item.details?.notes && (
-                            <div className="sm:col-span-2">
-                              <span className="text-[11px] text-foreground/50 block">Reviewer Notes:</span>
-                              <p className="text-xs text-foreground/75 italic">
-                                "{item.details.notes}"
-                              </p>
-                            </div>
-                          )}
+
+                            <button
+                              onClick={() => toggleExpand(item.id)}
+                              className="flex items-center gap-1 text-xs text-foreground/50 hover:text-foreground cursor-pointer px-2 py-1 font-medium transition-colors"
+                            >
+                              <FiChevronUp className="size-3.5" />
+                              <span>Less</span>
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                    <div className="flex items-center justify-between pt-2 border-t border-foreground/5">
-                      <div className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          variant="light"
-                          onPress={() => handleFlag(item.id)}
-                          className={`text-xs font-medium px-2.5 h-7 rounded-lg transition-colors ${
-                            item.status === "flagged"
-                              ? "bg-red-500/10 text-red-500 font-semibold"
-                              : "text-rose-500 hover:bg-rose-500/10"
-                          }`}
-                          startContent={<FiFlag className="size-3.5" />}
-                        >
-                          {item.status === "flagged" ? "Flagged" : "Flag"}
-                        </Button>
+                      )}
 
-                        <Button
-                          size="sm"
-                          variant="light"
-                          onPress={() => handleArchive(item.id)}
-                          className={`text-xs font-medium px-2.5 h-7 rounded-lg transition-colors ${
-                            item.status === "archived"
-                              ? "bg-foreground/15 text-foreground font-semibold"
-                              : "text-foreground/60 hover:bg-foreground/5 hover:text-foreground"
-                          }`}
-                          startContent={<FiArchive className="size-3.5" />}
-                        >
-                          {item.status === "archived" ? "Archived" : "Archive"}
-                        </Button>
-                      </div>
+                      {!isExpanded && (
+                        <div className="flex items-center justify-between pt-1">
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              variant="light"
+                              onPress={() => handleFlag(item.id)}
+                              className={`text-xs font-medium px-2.5 h-7 rounded-lg transition-colors ${item.status === "flagged"
+                                ? "bg-red-500/10 text-red-500 font-semibold"
+                                : "text-rose-500 hover:bg-rose-500/10"
+                                }`}
+                              startContent={<FiFlag className="size-3.5" />}
+                            >
+                              {item.status === "flagged" ? "Flagged" : "Flag"}
+                            </Button>
 
-                      <button
-                        onClick={() => toggleExpand(item.id)}
-                        className="flex items-center gap-1 text-xs text-sky-500 dark:text-sky-400 hover:underline cursor-pointer px-2 py-1 font-medium"
-                      >
-                        <span>{isExpanded ? "Less" : "Details"}</span>
-                        {isExpanded ? (
-                          <FiChevronUp className="size-3.5" />
-                        ) : (
-                          <FiChevronDown className="size-3.5" />
-                        )}
-                      </button>
-                    </div>
-                  </CardBody>
-                </Card>
-              );
-            })}
-          </div>
-        )}
+                            <Button
+                              size="sm"
+                              variant="light"
+                              onPress={() => handleArchive(item.id)}
+                              className={`text-xs font-medium px-2.5 h-7 rounded-lg transition-colors ${item.status === "archived"
+                                ? "bg-foreground/15 text-foreground font-semibold"
+                                : "text-foreground/60 hover:bg-foreground/5 hover:text-foreground"
+                                }`}
+                              startContent={<FiArchive className="size-3.5" />}
+                            >
+                              {item.status === "archived" ? "Archived" : "Archive"}
+                            </Button>
+                          </div>
 
-        {!isLoadingData && items.length > 0 && pagination && pagination.totalPages > 1 && (
-          <div className="pt-3 border-t border-foreground/10">
-            <Pagination
-              identifier="items"
-              limit={EVEN_PAGINATION_LIMIT}
-              totalItems={pagination.totalData}
-              currentPage={currentPage}
-              totalPages={pagination.totalPages}
-              handlePageChange={(newPage) => setCurrentPage(newPage)}
-            />
-          </div>
-        )}
+                          <button
+                            onClick={() => toggleExpand(item.id)}
+                            className="flex items-center gap-1 text-xs text-sky-500 dark:text-sky-400 hover:underline cursor-pointer px-2 py-1 font-medium"
+                          >
+                            <span>Details</span>
+                            <FiChevronDown className="size-3.5" />
+                          </button>
+                        </div>
+                      )}
+                    </CardBody>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+
+          {!isLoadingData && items.length > 0 && pagination && pagination.totalPages > 1 && (
+            <div className="pt-3 border-t border-foreground/10">
+              <Pagination
+                identifier="items"
+                limit={EVEN_PAGINATION_LIMIT}
+                totalItems={pagination.totalData}
+                currentPage={currentPage}
+                totalPages={pagination.totalPages}
+                handlePageChange={(newPage) => setCurrentPage(newPage)}
+              />
+            </div>
+          )}
         </div>
       </div>
     </ComponentContainer>

@@ -388,6 +388,11 @@ export default function Checkout() {
           description: `Successfully signed up for the ${activePlan.name} Plan!`,
           color: "success",
         });
+        try {
+          Object.keys(localStorage).forEach((k) => {
+            if (k.startsWith("cached_billing_data_")) localStorage.removeItem(k);
+          });
+        } catch (e) { }
         queryClient.invalidateQueries({ queryKey: ["billing"] });
         navigate("/settings/billing");
       }

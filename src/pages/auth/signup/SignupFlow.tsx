@@ -426,6 +426,11 @@ export const SignupFlow: React.FC = () => {
           cvc: !isZeroDue ? cvc : undefined,
           couponCode: appliedCoupon ? appliedCoupon.code : undefined,
         });
+        try {
+          Object.keys(localStorage).forEach((k) => {
+            if (k.startsWith("cached_billing_data_")) localStorage.removeItem(k);
+          });
+        } catch (e) { }
         queryClient.invalidateQueries({ queryKey: ["billing"] });
         queryClient.invalidateQueries({ queryKey: ["user"] });
         addToast({

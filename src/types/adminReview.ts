@@ -26,6 +26,9 @@ export interface ReviewItem {
     email?: string;
     treatment?: string;
     channel?: string;
+    platform?: string;
+    staffName?: string;
+    unreadCount?: number;
     notes?: string;
     rating?: number;
   };

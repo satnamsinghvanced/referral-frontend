@@ -67,7 +67,13 @@ const TrackReferralModal = ({
     phone: Yup.string()
       .required("Phone number is required")
       .matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX"),
-    email: Yup.string().matches(EMAIL_REGEX, "Invalid email format").nullable(),
+    email: Yup.string()
+      .nullable()
+      .notRequired()
+      .test("is-valid-email", "Invalid email format", (val) => {
+        if (!val || val.trim() === "") return true;
+        return EMAIL_REGEX.test(val.trim());
+      }),
     referrerId: Yup.string().when([], {
       is: () => referrerMode === "existing",
       then: (schema) => schema.required("Please select a referrer"),
@@ -75,15 +81,21 @@ const TrackReferralModal = ({
     treatment: Yup.string().required("Reason for referral is required"),
     source: Yup.string().required("Referral source is required"),
     status: Yup.string().required("Status is required"),
-    locationId: Yup.string().required("Practice location is required"),
-    estimatedValue: Yup.number().min(
-      0,
-      "Estimated Value must be non-negative.",
-    ),
-    appointmentTime: Yup.string().nullable(),
+    locationId: Yup.string().nullable().optional(),
+    estimatedValue: Yup.mixed()
+      .test("is-non-negative", "Estimated Value must be non-negative.", (val) => {
+        if (val === "" || val === null || val === undefined) return true;
+        const num = Number(val);
+        return !isNaN(num) && num >= 0;
+      })
+      .nullable()
+      .optional(),
+    appointmentTime: Yup.string().nullable().optional(),
     reason: Yup.string()
       .max(500, "Referral reason must be less than 500 characters")
-      .nullable(),
+      .nullable()
+      .optional(),
+    notes: Yup.string().nullable().optional(),
   });
 
   const formik = useFormik({
@@ -136,7 +148,6 @@ const TrackReferralModal = ({
       createReferral(payload, {
         onSuccess: () => {
           formik.resetForm();
-          setReferrerFilterValue("");
           setReferrerMode("existing");
           onClose();
         },
@@ -144,59 +155,41 @@ const TrackReferralModal = ({
     },
   });
 
-  const [referrerFilterValue, setReferrerFilterValue] = useState("");
   const referrerSelectionItems = useMemo(() => {
-    const baseItems = [
+    return [
       {
         _id: userId || "myself-id",
         name: "Myself",
         practice: {
-          name: `${user?.firstName || ""} ${user?.lastName || ""}`,
+          name: `${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "Account Owner",
         },
         isMyself: true,
       },
       ...(referrers || []),
     ];
-    if (!referrerFilterValue) return baseItems;
-    const lowerFilter = referrerFilterValue.toLowerCase();
-    return baseItems.filter((item) => {
-      const nameMatch = item.name?.toLowerCase().includes(lowerFilter);
-      const practiceMatch = item.practice?.name
-        ?.toLowerCase()
-        .includes(lowerFilter);
-      return nameMatch || practiceMatch;
-    });
-  }, [referrers, userId, user, referrerFilterValue]);
-
-  const getReferrerNameById = (id: string | null | undefined) => {
-    if (!id) return "";
-    if (id === userId || id === "myself-id") {
-      return "Myself";
-    }
-    const referrer = referrers?.find((r) => r._id === id);
-    return referrer ? referrer.name : "";
-  };
+  }, [referrers, userId, user]);
 
   const handleClose = () => {
     formik.resetForm();
-    setReferrerFilterValue("");
     setReferrerMode("existing");
     onClose();
   };
 
   useEffect(() => {
-    if (isOpen && formik.values.referrerId) {
-      setReferrerFilterValue(getReferrerNameById(formik.values.referrerId));
-    }
-  }, [isOpen, formik.values.referrerId, referrers, userId]);
-
-  useEffect(() => {
     if (!isOpen) {
       formik.resetForm();
-      setReferrerFilterValue("");
       setReferrerMode("existing");
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen && !formik.values.locationId) {
+      const locId = selectedLocation?._id || locations[0]?._id;
+      if (locId) {
+        formik.setFieldValue("locationId", locId);
+      }
+    }
+  }, [isOpen, selectedLocation, locations, formik.values.locationId]);
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     fieldName: string,
@@ -387,28 +380,17 @@ const TrackReferralModal = ({
                         variant="flat"
                         size="sm"
                         radius="sm"
-                        items={referrerSelectionItems}
-                        selectedKey={formik.values.referrerId}
+                        disableAnimation
+                        popoverProps={{
+                          disableAnimation: true,
+                          shouldCloseOnScroll: false,
+                        }}
+                        defaultItems={referrerSelectionItems}
+                        selectedKey={formik.values.referrerId ? String(formik.values.referrerId) : null}
                         onSelectionChange={(key) => {
-                          formik.setFieldValue("referrerId", key);
-                          if (key) {
-                            setReferrerFilterValue(getReferrerNameById(key as string));
-                          } else {
-                            setReferrerFilterValue("");
-                          }
+                          formik.setFieldValue("referrerId", key ? String(key) : "");
                         }}
-                        inputValue={referrerFilterValue}
-                        onInputChange={setReferrerFilterValue}
-                        onOpenChange={(open) => {
-                          if (open) {
-                            setReferrerFilterValue("");
-                          } else {
-                            setReferrerFilterValue(
-                              getReferrerNameById(formik.values.referrerId),
-                            );
-                          }
-                        }}
-                        onBlur={formik.handleBlur}
+                        onBlur={() => formik.setFieldTouched("referrerId", true)}
                         isInvalid={
                           !!(
                             formik.errors.referrerId &&
@@ -685,7 +667,7 @@ const TrackReferralModal = ({
                 onPress={() => formik.handleSubmit()}
                 isLoading={!!isLoading}
                 startContent={!isLoading && <FiPlus className="text-[15px]" />}
-                isDisabled={isLoading || !formik.isValid || !formik.dirty}
+                isDisabled={isLoading}
               >
                 Add Referral
               </Button>
