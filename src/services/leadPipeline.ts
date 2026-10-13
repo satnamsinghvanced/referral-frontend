@@ -25,12 +25,15 @@ export const updateLead = async ({ id, data, }: { id: string; data: any; }): Pro
   return response.data;
 };
 
-export const sendLeadEmail = async ({ id, subject, body, attachments, }: {
-  id: string; subject: string; body: string; attachments?: File[];
+export const sendLeadEmail = async ({ id, email, subject, body, attachments, }: {
+  id: string; email?: string; subject: string; body: string; attachments?: File[];
 }): Promise<any> => {
   const formData = new FormData();
   formData.append("subject", subject);
   formData.append("body", body);
+  if (email && email.trim()) {
+    formData.append("email", email.trim());
+  }
   if (attachments && attachments.length > 0) {
     attachments.forEach((file) => {
       formData.append("attachments", file);

@@ -33,11 +33,13 @@ export interface RecordedCall {
   timeAgo: string;
   duration: string;
   phoneNumber: string;
+  email?: string;
   transcript: string;
   reasonForCall: string;
   insurance?: string;
   requestedDate?: string;
   notes?: string;
+  leadStatus?: string;
   needsReview?: boolean;
   callSid?: string;
 }

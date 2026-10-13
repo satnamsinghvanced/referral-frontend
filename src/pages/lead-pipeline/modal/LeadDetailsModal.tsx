@@ -128,7 +128,7 @@ const LeadDetailsModal = ({ isOpen, onOpenChange, lead, onDelete }: LeadDetailsM
     initialValues: {
       firstName: lead?.firstName || lead?.name?.split(" ")[0] || "",
       lastName: lead?.lastName || lead?.name?.split(" ").slice(1).join(" ") || "",
-      email: lead?.email || "",
+      email: (lead?.email && !lead.email.toLowerCase().includes("@ivr.local")) ? lead.email : "",
       phone: lead?.phone || "",
       locationId: lead?.locationId?._id || lead?.locationId || "",
       status: lead?.l_status || lead?.status || "newLead",
@@ -140,13 +140,14 @@ const LeadDetailsModal = ({ isOpen, onOpenChange, lead, onDelete }: LeadDetailsM
     enableReinitialize: true,
     onSubmit: async (values) => {
       try {
-        const { email: _email, ...updatePayload } = values;
+        const cleanEmail = values.email?.trim() || "";
         await updateLead({
           id: lead.id || lead._id,
           data: {
-            ...updatePayload,
+            ...values,
             firstName: values.firstName?.trim(),
             lastName: values.lastName?.trim(),
+            email: cleanEmail,
             phone: values.phone?.trim(),
             ...(values.locationId ? { locationId: values.locationId } : {}),
             estimatedValue: Number(values.estimatedValue),

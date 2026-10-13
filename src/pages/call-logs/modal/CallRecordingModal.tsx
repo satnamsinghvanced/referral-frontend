@@ -3,7 +3,7 @@ import {
   ModalHeader, Tab, Tabs, Textarea, addToast
 } from "@heroui/react";
 import { getLocalTimeZone, now } from "@internationalized/date";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { FiCalendar, FiCheckCircle, FiXCircle, FiPlay, FiPause } from "react-icons/fi";
 import { LuPhoneIncoming, LuPhoneOutgoing } from "react-icons/lu";
 import { MdChatBubbleOutline } from "react-icons/md";
@@ -45,13 +45,21 @@ const AudioPlayer = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const hasReportedRef = useRef(false);
+
+  useEffect(() => {
+    hasReportedRef.current = false;
+  }, [url]);
 
   const updateDurationFromAudio = useCallback(() => {
     if (audioRef.current && audioRef.current.duration && audioRef.current.duration !== Infinity && !isNaN(audioRef.current.duration)) {
       const exactSec = Math.round(audioRef.current.duration);
-      setDuration(exactSec);
-      if (onDurationDetected && exactSec > 0) {
-        onDurationDetected(exactSec);
+      if (exactSec > 0) {
+        setDuration(exactSec);
+        if (onDurationDetected && !hasReportedRef.current) {
+          hasReportedRef.current = true;
+          onDurationDetected(exactSec);
+        }
       }
     }
   }, [onDurationDetected]);
@@ -71,28 +79,33 @@ const AudioPlayer = ({
         parsedDuration = parseInt(callDuration.trim(), 10);
       }
     }
-    if (!audioRef.current?.duration || isNaN(audioRef.current.duration) || audioRef.current.duration === Infinity) {
+    if (parsedDuration > 0) {
       setDuration(parsedDuration);
-    } else {
-      updateDurationFromAudio();
     }
-  }, [callDuration, updateDurationFromAudio]);
+  }, [callDuration]);
 
   const togglePlay = () => {
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
+        setIsPlaying(false);
       } else {
-        audioRef.current.play();
+        if (audioRef.current.ended || (duration > 0 && currentTime >= duration)) {
+          audioRef.current.currentTime = 0;
+          setCurrentTime(0);
+        }
+        audioRef.current.play().then(() => {
+          setIsPlaying(true);
+        }).catch(() => {
+          setIsPlaying(false);
+        });
       }
-      setIsPlaying(!isPlaying);
     }
   };
 
   const handleTimeUpdate = () => {
     if (audioRef.current) {
       setCurrentTime(audioRef.current.currentTime);
-      updateDurationFromAudio();
     }
   };
 
@@ -116,16 +129,17 @@ const AudioPlayer = ({
       <audio
         ref={audioRef}
         src={streamUrl}
-        preload="auto"
+        preload="metadata"
         onLoadedMetadata={updateDurationFromAudio}
-        onLoadedData={updateDurationFromAudio}
         onDurationChange={updateDurationFromAudio}
-        onCanPlay={updateDurationFromAudio}
         onTimeUpdate={handleTimeUpdate}
-        onEnded={() => setIsPlaying(false)}
+        onEnded={() => {
+          setIsPlaying(false);
+        }}
         className="hidden"
       />
       <button
+        type="button"
         onClick={togglePlay}
         className="flex-shrink-0 text-foreground hover:opacity-70 transition-opacity flex items-center justify-center w-6 h-6"
       >
@@ -410,13 +424,16 @@ export default function CallRecordingModal({ isOpen, onClose, data }: CallRecord
     setDetectedDuration(null);
   }, [data?._id]);
 
-  if (!data) return null;
-
-  const handleDurationDetected = (seconds: number) => {
+  const handleDurationDetected = useCallback((seconds: number) => {
+    if (!data?._id) return;
     const formatted = `${seconds} sec`;
-    setDetectedDuration(formatted);
+    setDetectedDuration((prev) => (prev === formatted ? prev : formatted));
     queryClient.setQueriesData({ queryKey: [CALL_RECORDS_QUERY_KEY] }, (oldData: any) => {
       if (!oldData?.paginatedCalls?.data) return oldData;
+      const target = oldData.paginatedCalls.data.find((item: CallRecord) => item._id === data._id);
+      if (target && (target.duration === formatted || target.secondsDuration === String(seconds))) {
+        return oldData;
+      }
       return {
         ...oldData,
         paginatedCalls: {
@@ -429,30 +446,17 @@ export default function CallRecordingModal({ isOpen, onClose, data }: CallRecord
         },
       };
     });
-  };
+  }, [data?._id]);
 
-  const effectiveData = {
-    ...data,
-    duration: detectedDuration || data.duration,
-  };
+  const effectiveData = useMemo(() => {
+    if (!data) return null;
+    return {
+      ...data,
+      duration: detectedDuration || data.duration,
+    };
+  }, [data, detectedDuration]);
 
-  const tabs = [
-    {
-      key: "playback",
-      label: "Playback",
-      content: <PlaybackTab data={effectiveData} onDurationDetected={handleDurationDetected} />,
-    },
-    {
-      key: "transcription",
-      label: "Transcription",
-      content: <TranscriptionTab data={effectiveData} />,
-    },
-    {
-      key: "details",
-      label: "Details",
-      content: <DetailsTab data={effectiveData} onClose={onClose} />,
-    },
-  ];
+  if (!data || !effectiveData) return null;
   return (
     <Modal
       isOpen={isOpen}
@@ -485,8 +489,7 @@ export default function CallRecordingModal({ isOpen, onClose, data }: CallRecord
         <ModalBody className="px-4 py-4">
           <div className="">
             <Tabs
-              aria-label="Dynamic tabs"
-              items={tabs}
+              aria-label="Call details tabs"
               variant="light"
               radius="full"
               classNames={{
@@ -500,11 +503,15 @@ export default function CallRecordingModal({ isOpen, onClose, data }: CallRecord
               }}
               className="w-full"
             >
-              {(item) => (
-                <Tab key={item.key} title={item.label}>
-                  <div>{item.content}</div>
-                </Tab>
-              )}
+              <Tab key="playback" title="Playback">
+                <PlaybackTab data={effectiveData} onDurationDetected={handleDurationDetected} />
+              </Tab>
+              <Tab key="transcription" title="Transcription">
+                <TranscriptionTab data={effectiveData} />
+              </Tab>
+              <Tab key="details" title="Details">
+                <DetailsTab data={effectiveData} onClose={onClose} />
+              </Tab>
             </Tabs>
           </div>
         </ModalBody>

@@ -198,11 +198,25 @@ const LeadDetailsOverviewTab = ({
                       Email
                     </p>
                     <p
-                      className="text-sm font-bold text-foreground truncate cursor-pointer hover:text-primary transition-colors"
-                      onClick={onSendEmailClick}
-                      title="Click to send email"
+                      className={`text-sm font-bold text-foreground truncate ${
+                        lead.email && !lead.email.toLowerCase().includes("@ivr.local")
+                          ? "cursor-pointer hover:text-primary transition-colors"
+                          : ""
+                      }`}
+                      onClick={
+                        lead.email && !lead.email.toLowerCase().includes("@ivr.local")
+                          ? onSendEmailClick
+                          : undefined
+                      }
+                      title={
+                        lead.email && !lead.email.toLowerCase().includes("@ivr.local")
+                          ? "Click to send email"
+                          : ""
+                      }
                     >
-                      {lead.email || "—"}
+                      {lead.email && !lead.email.toLowerCase().includes("@ivr.local")
+                        ? lead.email
+                        : "—"}
                     </p>
                   </div>
                 </div>
@@ -315,8 +329,8 @@ const LeadDetailsOverviewTab = ({
                   type="email"
                   name="email"
                   value={formik.values.email}
-                  isReadOnly
-                  isDisabled
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   startContent={<HiOutlineMail className="text-default-400 size-4" />}
                 />
               </div>
