@@ -113,7 +113,9 @@ const CallTracking = () => {
       buttons: [
         {
           label: "Refresh",
-          onClick: () => void handleRefresh(),
+          onClick: (): void => {
+            void handleRefresh();
+          },
           icon: (
             <LuRefreshCw
               fontSize={15}

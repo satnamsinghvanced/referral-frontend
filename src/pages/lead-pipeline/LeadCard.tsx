@@ -5,6 +5,7 @@ import { LuMapPin } from "react-icons/lu";
 import { FiTrash2 } from "react-icons/fi";
 import PriorityLevelChip from "../../components/chips/PriorityLevelChip";
 import { useLocationContext } from "../../providers/LocationContext";
+import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
 
 interface LeadCardProps {
   lead: {
@@ -56,6 +57,13 @@ const LeadCard = ({ lead, onPress, onDelete, draggable, onDragStart, onDragEnd, 
     return { name: "Not Assigned", color: "#9ca3af" };
   }, [locations, lead.locationId, getLocationColor]);
 
+  const contactSubtitle = useMemo(() => {
+    if (lead.email && !lead.email.toLowerCase().includes("@ivr.local")) {
+      return lead.email;
+    }
+    return lead.phone ? formatPhoneNumber(lead.phone) : "";
+  }, [lead.email, lead.phone]);
+
   return (
     <div
       onDragOver={onDragOver}
@@ -85,7 +93,7 @@ const LeadCard = ({ lead, onPress, onDelete, draggable, onDragStart, onDragEnd, 
                   {lead.name}
                 </h5>
                 <p className="text-[10px] text-gray-400 dark:text-foreground/40 truncate">
-                  {lead.email}
+                  {contactSubtitle}
                 </p>
               </div>
               <PriorityLevelChip level={lead.priority} />

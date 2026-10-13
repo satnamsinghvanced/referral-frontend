@@ -20,23 +20,44 @@ interface SendEmailModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   lead: {
-    id: string;
+    id?: string;
     _id?: string;
-    firstName: string;
-    lastName: string;
-    email: string;
+    firstName?: string;
+    lastName?: string;
+    name?: string;
+    email?: string;
   } | null;
 }
 
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
 const SendEmailModal = ({ isOpen, onOpenChange, lead }: SendEmailModalProps) => {
   const { mutateAsync: sendEmail, isPending: sending } = useSendLeadEmail();
+
+  const existingEmail =
+    lead?.email && !lead.email.toLowerCase().includes("@ivr.local")
+      ? lead.email.trim()
+      : "";
+  const hasExistingEmail = !!existingEmail;
+  const recipientName =
+    (lead as any)?.name ||
+    `${lead?.firstName || ""} ${lead?.lastName || ""}`.trim() ||
+    "Lead";
+
   const validationSchema = Yup.object().shape({
+    email: hasExistingEmail
+      ? Yup.string().notRequired()
+      : Yup.string()
+        .trim()
+        .required("Recipient email is required")
+        .matches(EMAIL_REGEX, "Invalid email format"),
     subject: Yup.string().required("Subject is required"),
     body: Yup.string().required("Email body is required"),
   });
 
-  const formik = useFormik<{ subject: string; body: string; attachments: File[] }>({
+  const formik = useFormik<{ email: string; subject: string; body: string; attachments: File[] }>({
     initialValues: {
+      email: existingEmail,
       subject: "",
       body: "",
       attachments: [],
@@ -45,16 +66,31 @@ const SendEmailModal = ({ isOpen, onOpenChange, lead }: SendEmailModalProps) => 
     enableReinitialize: true,
     onSubmit: async (values, { resetForm }) => {
       if (!lead) return;
+      const targetEmail = hasExistingEmail ? existingEmail : values.email?.trim().toLowerCase();
+      if (!targetEmail) {
+        addToast({
+          title: "Email Required",
+          description: "Please enter a valid recipient email address.",
+          color: "danger",
+        });
+        return;
+      }
       try {
         await sendEmail({
           id: lead.id || lead._id || "",
+          email: targetEmail,
           subject: values.subject,
           body: values.body,
           attachments: values.attachments,
         });
+        if (!lead.email || lead.email.toLowerCase().includes("@ivr.local")) {
+          lead.email = targetEmail;
+        }
         resetForm();
         onOpenChange(false);
-      } catch (error) { }
+      } catch (error: any) {
+        console.log("error message in send email >>>>>>>", error.message)
+      }
     },
   });
 
@@ -96,24 +132,69 @@ const SendEmailModal = ({ isOpen, onOpenChange, lead }: SendEmailModalProps) => 
               </p>
             </ModalHeader>
             <ModalBody className="py-2 px-5 gap-4">
-              <div className="flex flex-col gap-1.5 p-3.5 border border-foreground/5 rounded-xl bg-default-50/50 dark:bg-white/5">
-                <span className="text-[10px] text-default-400 font-bold uppercase tracking-wider">
-                  Recipient
-                </span>
-                <div className="flex items-center gap-2">
-                  <Chip
-                    variant="flat"
-                    color="secondary"
-                    size="sm"
-                    className="font-semibold text-xs"
-                  >
-                    To: {(lead as any).name || `${lead.firstName || ""} ${lead.lastName || ""}`.trim() || "Lead"}
-                  </Chip>
-                  <span className="text-xs text-default-500 truncate">
-                    &lt;{lead.email}&gt;
+              {hasExistingEmail ? (
+                <div className="flex flex-col gap-1.5 p-3.5 border border-foreground/5 rounded-xl bg-default-50/50 dark:bg-white/5">
+                  <span className="text-[10px] text-default-400 font-bold uppercase tracking-wider">
+                    Recipient
                   </span>
+                  <div className="flex items-center gap-2">
+                    <Chip
+                      variant="flat"
+                      color="secondary"
+                      size="sm"
+                      className="font-semibold text-xs"
+                    >
+                      To: {recipientName}
+                    </Chip>
+                    <span className="text-xs text-default-500 truncate">
+                      &lt;{existingEmail}&gt;
+                    </span>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex flex-col gap-2 p-3.5 border border-purple-500/20 rounded-xl bg-purple-50/30 dark:bg-purple-950/10">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-default-400 font-bold uppercase tracking-wider">
+                      Recipient
+                    </span>
+                    <Chip
+                      variant="flat"
+                      color="secondary"
+                      size="sm"
+                      className="font-semibold text-xs"
+                    >
+                      To: {recipientName}
+                    </Chip>
+                  </div>
+                  <Input
+                    label="Recipient Email Address"
+                    labelPlacement="outside"
+                    placeholder="Enter email address (e.g. name@example.com)"
+                    variant="flat"
+                    size="sm"
+                    radius="md"
+                    type="email"
+                    name="email"
+                    id="recipient-email"
+                    value={formik.values.email}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    isInvalid={!!(formik.touched.email && formik.errors.email)}
+                    errorMessage={
+                      formik.touched.email && (formik.errors.email as string)
+                    }
+                    startContent={<HiOutlineMail className="text-default-400 size-4" />}
+                    classNames={{
+                      inputWrapper:
+                        "bg-white dark:bg-zinc-800 border border-foreground/10 hover:border-foreground/20 focus-within:!border-purple-500 transition-colors",
+                    }}
+                    isRequired
+                  />
+                  <p className="text-[11px] text-default-400">
+                    This lead does not have an email saved yet. Enter it here to send the email and save it to the lead.
+                  </p>
+                </div>
+              )}
               <div className="space-y-4">
                 <Input
                   label="Subject"
@@ -235,7 +316,12 @@ const SendEmailModal = ({ isOpen, onOpenChange, lead }: SendEmailModalProps) => 
                 onPress={() => formik.handleSubmit()}
                 isLoading={sending}
                 startContent={!sending && <HiOutlineInbox className="text-[16px]" />}
-                isDisabled={sending || !formik.isValid || !formik.dirty}
+                isDisabled={
+                  sending ||
+                  !formik.values.subject?.trim() ||
+                  !formik.values.body?.trim() ||
+                  (!hasExistingEmail && !formik.values.email?.trim())
+                }
               >
                 Send Email
               </Button>

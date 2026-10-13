@@ -3,6 +3,9 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input
 import { FiCheck, FiFileText } from "react-icons/fi";
 import { HiOutlineSparkles } from "react-icons/hi2";
 import { RecordedCall } from "../../../phone-service/mockData";
+import { LEAD_STATUSES } from "../../../../consts/lead-pipeline";
+import { queryClient } from "../../../../providers/QueryProvider";
+import { useLocationContext } from "../../../../providers/LocationContext";
 import axios from "../../../../services/axios";
 
 interface AiExtractedLeadModalProps {
@@ -13,11 +16,14 @@ interface AiExtractedLeadModalProps {
 }
 
 export default function AiExtractedLeadModal({ isOpen, onClose, call, onSaveLeadSuccess }: AiExtractedLeadModalProps) {
+  const { selectedLocation } = useLocationContext();
   const [callerName, setCallerName] = useState("");
   const [patientType, setPatientType] = useState<"New Patient" | "Existing Patient">("New Patient");
   const [reasonForCall, setReasonForCall] = useState("");
   const [insurance, setInsurance] = useState("");
   const [requestedDate, setRequestedDate] = useState("");
+  const [leadStatus, setLeadStatus] = useState<string>("newLead");
+  const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -28,7 +34,15 @@ export default function AiExtractedLeadModal({ isOpen, onClose, call, onSaveLead
       setReasonForCall(call.reasonForCall || "");
       setInsurance(call.insurance || "Unknown");
       setRequestedDate(call.requestedDate || "Flexible");
-      setNotes(call.notes || `${call.reasonForCall || "Call inquiry"} — extracted from transcript`);
+      setLeadStatus(call.leadStatus || "newLead");
+      const rawEmail = call.email || "";
+      setEmail(rawEmail.toLowerCase().includes("@ivr.local") ? "" : rawEmail);
+      const rawNotes = call.notes || "";
+      const isAutoIvrNote =
+        rawNotes.toLowerCase().includes("captured via ivr") ||
+        rawNotes.toLowerCase().includes("extracted from transcript") ||
+        rawNotes.toLowerCase().includes("saved from ivr");
+      setNotes(isAutoIvrNote ? "" : rawNotes);
     }
   }, [call]);
 
@@ -43,23 +57,34 @@ export default function AiExtractedLeadModal({ isOpen, onClose, call, onSaveLead
         reasonForCall,
         insurance,
         requestedDate,
+        leadStatus,
+        status: leadStatus,
+        email: email.trim(),
         notes,
+        locationId: selectedLocation?._id,
         phone: call.phoneNumber,
       };
       const response = (await axios.post(`/twilio-checkout/draft-leads/${call.id}/save`, payload)) as any;
+
+      await queryClient.invalidateQueries({ queryKey: ["leadStatus"] });
+      await queryClient.invalidateQueries({ queryKey: ["leadStats"] });
+      await queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+
       onSaveLeadSuccess(call.id, {
         callerName,
         patientType,
         reasonForCall,
         insurance,
         requestedDate,
+        leadStatus,
         notes,
+        email: email.trim(),
         isLeadSaved: true,
         leadId: response?.data?.leadId || response?.leadId,
       });
       addToast({
-        title: "Lead Saved",
-        description: `Successfully saved ${callerName} as a lead in Lead Tracking!`,
+        title: call.isLeadSaved ? "Lead Updated" : "Lead Saved",
+        description: `Successfully ${call.isLeadSaved ? "updated" : "saved"} ${callerName} in Lead Tracking!`,
         color: "success",
       });
       onClose();
@@ -121,6 +146,17 @@ export default function AiExtractedLeadModal({ isOpen, onClose, call, onSaveLead
                     value={callerName}
                     onValueChange={setCallerName}
                   />
+                  <Input
+                    label="Email (Optional)"
+                    labelPlacement="outside"
+                    placeholder="Enter email address (optional)"
+                    size="sm"
+                    radius="sm"
+                    variant="flat"
+                    type="email"
+                    value={email}
+                    onValueChange={setEmail}
+                  />
                   <Select
                     label="Patient Type"
                     labelPlacement="outside"
@@ -128,14 +164,17 @@ export default function AiExtractedLeadModal({ isOpen, onClose, call, onSaveLead
                     size="sm"
                     radius="sm"
                     variant="flat"
-                    selectedKeys={[patientType]}
+                    disallowEmptySelection
+                    disableAnimation
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                    selectedKeys={new Set([patientType])}
                     onSelectionChange={(keys) => {
                       const val = Array.from(keys)[0] as "New Patient" | "Existing Patient";
                       if (val) setPatientType(val);
                     }}
                   >
-                    <SelectItem key="New Patient">New Patient</SelectItem>
-                    <SelectItem key="Existing Patient">Existing Patient</SelectItem>
+                    <SelectItem key="New Patient" textValue="New Patient">New Patient</SelectItem>
+                    <SelectItem key="Existing Patient" textValue="Existing Patient">Existing Patient</SelectItem>
                   </Select>
                   <Input
                     label="Reason for Call"
@@ -167,6 +206,28 @@ export default function AiExtractedLeadModal({ isOpen, onClose, call, onSaveLead
                     value={requestedDate}
                     onValueChange={setRequestedDate}
                   />
+                  <Select
+                    label="Status"
+                    labelPlacement="outside"
+                    placeholder="Select lead status"
+                    size="sm"
+                    radius="sm"
+                    variant="flat"
+                    disallowEmptySelection
+                    disableAnimation
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                    selectedKeys={new Set([leadStatus])}
+                    onSelectionChange={(keys) => {
+                      const val = Array.from(keys)[0] as string;
+                      if (val) setLeadStatus(val);
+                    }}
+                  >
+                    {LEAD_STATUSES.map((status) => (
+                      <SelectItem key={status.key} textValue={status.label}>
+                        {status.label}
+                      </SelectItem>
+                    ))}
+                  </Select>
                 </div>
                 <Textarea
                   label="Notes"
@@ -207,7 +268,7 @@ export default function AiExtractedLeadModal({ isOpen, onClose, call, onSaveLead
                 onPress={handleSave}
                 startContent={<FiCheck className="text-[15px]" />}
               >
-                Save Lead
+                {call.isLeadSaved ? "Update Lead" : "Save Lead"}
               </Button>
             </ModalFooter>
           </>

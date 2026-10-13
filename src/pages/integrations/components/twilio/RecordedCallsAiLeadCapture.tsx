@@ -2,12 +2,28 @@ import { useState, useEffect } from "react";
 import { Card, CardBody, Button } from "@heroui/react";
 import { FiMic, FiUser, FiCheck, FiEye, FiFileText } from "react-icons/fi";
 import { RecordedCall } from "../../../phone-service/mockData";
+import { LEAD_STATUSES } from "../../../../consts/lead-pipeline";
 import AiExtractedLeadModal from "./AiExtractedLeadModal";
 import axios from "../../../../services/axios";
 
 interface RecordedCallsAiLeadCaptureProps {
   initialCalls?: RecordedCall[];
 }
+
+const formatCallerHeading = (name?: string, patientType?: string): string => {
+  if (!name) return patientType || "New Patient";
+  let clean = name.trim();
+  clean = clean.replace(/^(?:my\s+name\s+is|this\s+is|i\s+am|i'm|it\s+is|the\s+name\s+is|name\s+is|call\s+me)\b\s*/i, "").trim();
+  clean = clean.replace(/[.,/#!$%^&*;:{}=\-_`~()?"']/g, " ").trim();
+  const lower = clean.toLowerCase();
+  if (!clean || lower === "my name is" || lower === "unknown" || lower === "caller" || lower === "patient") {
+    return patientType || "New Patient";
+  }
+  return clean
+    .split(" ")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
+};
 
 export default function RecordedCallsAiLeadCapture({
   initialCalls = [],
@@ -40,12 +56,17 @@ export default function RecordedCallsAiLeadCapture({
           callMap.set(key, {
             ...existing,
             ...d,
-            isLeadSaved: existing?.isLeadSaved ?? false,
+            isLeadSaved: existing?.isLeadSaved || d.isLeadSaved || false,
+            leadStatus: d.leadStatus || existing?.leadStatus || "newLead",
           });
         }
       }
 
-      setCalls(Array.from(callMap.values()));
+      // Filter out saved calls so they are removed from the Recorded Calls & AI Lead Capture list
+      const unsavedCalls = Array.from(callMap.values()).filter(
+        (c) => !c.isLeadSaved && (c as any).status !== "saved"
+      );
+      setCalls(unsavedCalls);
     } catch (err) {
       console.error("Error fetching draft leads/recorded calls:", err);
     } finally {
@@ -62,11 +83,9 @@ export default function RecordedCallsAiLeadCapture({
     setIsModalOpen(true);
   };
 
-  const handleSaveLeadSuccess = (callId: string, updatedFields: Partial<RecordedCall>) => {
-    setCalls((prev) =>
-      prev.map((c) => (c.id === callId ? { ...c, ...updatedFields, isLeadSaved: true } : c))
-    );
-    fetchCallsAndDrafts();
+  const handleSaveLeadSuccess = (callId: string, _updatedFields?: Partial<RecordedCall>) => {
+    // Immediately remove saved call from the list
+    setCalls((prev) => prev.filter((c) => c.id !== callId));
   };
 
   return (
@@ -115,7 +134,7 @@ export default function RecordedCallsAiLeadCapture({
                           <FiUser className="w-4 h-4" />
                         </div>
                         <h4 className="text-sm font-bold text-foreground">
-                          {call.callerName}
+                          {formatCallerHeading(call.callerName, call.patientType)}
                         </h4>
                         <span
                           className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${isExisting
@@ -126,9 +145,16 @@ export default function RecordedCallsAiLeadCapture({
                           {call.patientType || "New Patient"}
                         </span>
                         {call.isLeadSaved && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                            <FiCheck className="w-3 h-3" /> Lead Saved
-                          </span>
+                          <>
+                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                              <FiCheck className="w-3 h-3" /> Lead Saved
+                            </span>
+                            {call.leadStatus && (
+                              <span className="inline-flex items-center text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
+                                {LEAD_STATUSES.find((s) => s.key === call.leadStatus)?.label || call.leadStatus}
+                              </span>
+                            )}
+                          </>
                         )}
                         <span className="text-xs text-foreground-400 font-mono">
                           {call.timeAgo} &middot; {call.duration} &middot; {call.phoneNumber}

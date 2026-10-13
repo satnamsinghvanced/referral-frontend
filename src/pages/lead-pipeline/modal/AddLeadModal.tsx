@@ -56,7 +56,14 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
         if (!value) return true;
         return NAME_REGEX.test(value);
       }),
-    email: Yup.string().required("Email is required").matches(EMAIL_REGEX, "Invalid email format"),
+    email: Yup.string()
+      .trim()
+      .nullable()
+      .notRequired()
+      .test("is-valid-email", "Invalid email format", (value) => {
+        if (!value) return true;
+        return EMAIL_REGEX.test(value);
+      }),
     phone: Yup.string().required("Phone is required").matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX"),
     location: Yup.string().required("Practice location is required"),
     source: Yup.string().required("Source is required"),
@@ -221,7 +228,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     }
                   />
                   <Input
-                    label="Email Address"
+                    label="Email Address (Optional)"
                     labelPlacement="outside"
                     placeholder="example@email.com"
                     variant="flat"
@@ -241,7 +248,6 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     startContent={
                       <HiOutlineMail className="text-default-400 size-4" />
                     }
-                    isRequired
                   />
                   <Input
                     label="Phone Number"

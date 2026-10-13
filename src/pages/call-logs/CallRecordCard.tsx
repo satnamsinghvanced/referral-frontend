@@ -25,6 +25,7 @@ export default function CallRecordCard({ record, onPlayClick }: { record: CallRe
     ...(record.appointment ? [{ label: "Appointment", type: "action" }] : []),
   ];
   const timeAgo = record.date ? formatTimeAgo(record.date) : "";
+  
   return (
     <>
       <div className="flex items-center justify-between p-3.5 border border-foreground/10 rounded-lg bg-background max-sm:flex-col max-sm:gap-4 max-sm:items-start">
