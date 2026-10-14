@@ -32,12 +32,9 @@ export function ActivityCard({ activity, onView, onDelete }: ActivityCardProps) 
   const activityColor = ACTIVITY_TYPES.find(
     (activityType: any) => activityType.value == type,
   )?.color.value;
-
   const { locations: contextLocations } = useLocationContext();
   const displayLocs = (locations && Array.isArray(locations) && locations.length > 0)
-    ? locations
-    : (location ? [location] : []);
-
+    ? locations : (location ? [location] : []);
   return (
     <div
       onClick={() => onView(activity)}
@@ -59,7 +56,6 @@ export function ActivityCard({ activity, onView, onDelete }: ActivityCardProps) 
           />
         </div>
       </div>
-
       {displayLocs.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-2">
           {displayLocs.map((loc) => {
@@ -93,7 +89,6 @@ export function ActivityCard({ activity, onView, onDelete }: ActivityCardProps) 
           })}
         </div>
       )}
-
       {(startDate || activityType || description) && (
         <div className="text-sm text-gray-600 dark:text-foreground/60 space-y-2 mb-3 p-0">
           {startDate && (
@@ -124,7 +119,6 @@ export function ActivityCard({ activity, onView, onDelete }: ActivityCardProps) 
           ) : null}
           <div>{reach && reach != "0" ? `${reach} reach` : "No reach yet"}</div>
         </div>
-
         {onDelete && (
           <Button
             size="sm"

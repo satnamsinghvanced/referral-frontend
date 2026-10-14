@@ -2,8 +2,7 @@ import { Chip } from "@heroui/react";
 import { STATUS_OPTIONS } from "../../consts/practice";
 
 export default function PracticeStatusChip({ status }: { status: string }) {
-  let classNames;
-
+  let classNames
   switch (status) {
     case "active":
       classNames =
@@ -21,13 +20,11 @@ export default function PracticeStatusChip({ status }: { status: string }) {
       classNames =
         "bg-violet-100 dark:bg-violet-900/30 text-violet-800 dark:text-violet-300";
       break;
-
     default:
       classNames =
         "bg-sky-100 dark:bg-sky-900/30 text-sky-800 dark:text-sky-300";
       break;
   }
-
   return (
     <Chip
       size="sm"

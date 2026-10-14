@@ -13,7 +13,6 @@ interface LogoutConfirmationModalProps {
 const LogoutConfirmationModal = ({ isOpen, onClose }: LogoutConfirmationModalProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const [isLoading, setIsLoading] = useState(false);
-
   const handleLogout = async () => {
     try {
       setIsLoading(true);
@@ -25,7 +24,6 @@ const LogoutConfirmationModal = ({ isOpen, onClose }: LogoutConfirmationModalPro
       onClose();
     }
   };
-
   return (
     <Modal
       isOpen={isOpen}
@@ -50,7 +48,6 @@ const LogoutConfirmationModal = ({ isOpen, onClose }: LogoutConfirmationModalPro
           <p className="text-sm text-slate-500 dark:text-slate-400 font-medium leading-normal mb-7">
             Are you sure you want to sign out?
           </p>
-
           <div className="flex items-center justify-between gap-3 w-full pt-1">
             <Button
               size="md"

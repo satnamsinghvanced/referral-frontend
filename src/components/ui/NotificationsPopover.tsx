@@ -19,13 +19,11 @@ export default function NotificationPopover() {
   const navigate = useNavigate();
   const { data: rawNotifications = [], isLoading } = useInAppNotifications();
   const markReadMutation = useMarkNotificationsRead();
-
   useEffect(() => {
     if (!markReadMutation.isPending) {
       setIsMarkingAll(false);
     }
   }, [markReadMutation.isPending]);
-
   useEffect(() => {
     const handleNewNotification = (_data: any) => {
       queryClient.invalidateQueries({ queryKey: ["notifications", "in-app"] });
@@ -35,7 +33,6 @@ export default function NotificationPopover() {
       unsubscribeFromEvent("new_notification", handleNewNotification);
     };
   }, []);
-
   const validNotifications = useMemo(() => {
     const twentyFourHoursAgo = dayjs().subtract(24, "hours");
     return rawNotifications.filter((n: any) => {
@@ -43,17 +40,13 @@ export default function NotificationPopover() {
       return dayjs(n.createdAt).isAfter(twentyFourHoursAgo);
     });
   }, [rawNotifications]);
-
   const unreadNotifications = useMemo(() => {
     return validNotifications.filter((n: any) => !n.isRead);
   }, [validNotifications]);
-
   const displayedNotifications =
     activeTab === "unread" ? unreadNotifications : validNotifications;
-
   const unreadCount = unreadNotifications.length;
   const totalCount = validNotifications.length;
-
   const handleNotificationClick = (notification: any) => {
     if (!notification.isRead) {
       markReadMutation.mutate([notification._id]);
@@ -95,7 +88,6 @@ export default function NotificationPopover() {
       setOpen(false);
     }
   };
-
   const handleMarkAllRead = () => {
     const unreadIds = unreadNotifications.map((n: any) => n._id);
     if (unreadIds.length > 0) {
@@ -103,7 +95,6 @@ export default function NotificationPopover() {
       markReadMutation.mutate(unreadIds);
     }
   };
-
   return (
     <Popover
       placement="bottom-end"
@@ -143,7 +134,6 @@ export default function NotificationPopover() {
           )}
         </div>
       </PopoverTrigger>
-
       <PopoverContent className="w-[calc(100vw-1.5rem)] max-w-sm sm:w-96 p-0 shadow-2xl rounded-2xl border border-foreground/10 overflow-hidden bg-background text-foreground">
         <div className="flex flex-col items-stretch w-full">
           <div className="flex items-center justify-between px-4 py-3 border-b border-foreground/10 bg-foreground/[0.02]">
@@ -173,7 +163,6 @@ export default function NotificationPopover() {
               )
             )}
           </div>
-
           <div className="flex items-center gap-1 px-3 pt-2 pb-1 border-b border-foreground/10 bg-foreground/[0.01]">
             <button
               type="button"
@@ -214,7 +203,6 @@ export default function NotificationPopover() {
               )}
             </button>
           </div>
-
           <div className="max-h-96 overflow-y-auto divide-y divide-foreground/5">
             {isLoading ? (
               <div className="flex flex-col items-center justify-center p-8 gap-2 text-xs text-muted-foreground">
@@ -271,7 +259,6 @@ export default function NotificationPopover() {
                           {notification.message || notification.metadata?.message}
                         </p>
                       </div>
-
                       <div className="flex flex-col items-end gap-1 flex-shrink-0">
                         <span
                           className={`px-2  text-[6px] font-bold uppercase tracking-wider rounded-md border ${!isRead
@@ -283,13 +270,11 @@ export default function NotificationPopover() {
                         </span>
                       </div>
                     </div>
-
                     <div className="flex justify-between items-center mt-2 pt-1 border-t border-foreground/5">
                       <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
                         <FiClock className="size-3" />
                         <span>{dayjs(notification.createdAt).fromNow()}</span>
                       </div>
-
                       <div className="flex items-center gap-1.5">
                         {!isRead && (
                           markReadMutation.isPending &&
@@ -320,7 +305,6 @@ export default function NotificationPopover() {
               })
             )}
           </div>
-
           <div className="px-4 py-2 border-t border-foreground/10 bg-foreground/[0.02] text-center">
             <span className="text-[10px] text-muted-foreground">
               Read notifications auto-clear after 24 hours

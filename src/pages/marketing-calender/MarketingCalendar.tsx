@@ -27,15 +27,13 @@ import Pagination from "../../components/common/Pagination";
 import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
 import { usePlanGuard } from "../../hooks/usePlanGuard";
 import { useLocationContext } from "../../providers/LocationContext";
-import { getAssignedLocation } from "../conversations/Conversations";
 import { getLocationStyle } from "../../utils/locationTheme";
 
 const MarketingCalendar = () => {
   const { hasAccess } = usePlanGuard();
   const canTrackBudget = hasAccess("budget_tracking");
   const allowedActivityTypes = getFilteredActivityTypes(hasAccess);
-  const { data: googleCalendarConfig, isLoading: isGoogleCalendarLoading } =
-    useCalendarIntegration();
+  const { data: googleCalendarConfig, isLoading: isGoogleCalendarLoading } = useCalendarIntegration();
   const isGoogleCalendarConnected = useMemo(() => {
     if (!googleCalendarConfig) return false;
     const configs = Array.isArray(googleCalendarConfig)
@@ -78,27 +76,8 @@ const MarketingCalendar = () => {
       setCurrentFilters((prev: any) => ({ ...prev, page })),
     isLoading,
   });
-  const { mutate: deleteActivity, isPending: isDeletePending } =
-    useDeleteActivity();
-  const activities = useMemo(() => {
-    const rawActivities = marketingActivitiesData?.data || [];
-    if (!isGoogleCalendarConnected) {
-      return rawActivities.filter((a: any) => a?.type !== "googleCalendar");
-    }
-    return rawActivities;
-  }, [marketingActivitiesData?.data, isGoogleCalendarConnected]);
-  const sortedActivities = useMemo(() => {
-    return [...activities].sort((a: any, b: any) => {
-      const aCreated = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
-      const bCreated = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
-      if (aCreated !== bCreated) return bCreated - aCreated;
-      const aDate = a?.startDate ? new Date(a.startDate).getTime() : 0;
-      const bDate = b?.startDate ? new Date(b.startDate).getTime() : 0;
-      return bDate - aDate;
-    });
-  }, [activities]);
+  const { mutate: deleteActivity, isPending: isDeletePending } = useDeleteActivity();
   const { locations: contextLocations } = useLocationContext();
-
   const displayLocations = useMemo(() => {
     if (contextLocations && Array.isArray(contextLocations) && contextLocations.length > 0) {
       const names = contextLocations.map((l) => l.name).filter(Boolean) as string[];
@@ -106,9 +85,7 @@ const MarketingCalendar = () => {
     }
     return [];
   }, [contextLocations]);
-
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
-
   useEffect(() => {
     if (displayLocations && displayLocations.length > 0) {
       setSelectedLocations((prev) => {
@@ -118,7 +95,6 @@ const MarketingCalendar = () => {
       });
     }
   }, [displayLocations]);
-
   const toggleLocation = (locName: string) => {
     if (selectedLocations.includes(locName)) {
       if (selectedLocations.length <= 1) {
@@ -129,26 +105,92 @@ const MarketingCalendar = () => {
       setSelectedLocations((prev) => [...prev, locName]);
     }
   };
-
-  const locationFilteredActivities = useMemo(() => {
-    return sortedActivities.filter((act: any) => {
-      const actLocs =
-        act?.locations && Array.isArray(act.locations) && act.locations.length > 0
-          ? act.locations
-          : act?.location
-          ? [act.location]
-          : act?.patientLocation
-          ? [act.patientLocation]
-          : [];
-
-      if (actLocs.length > 0) {
-        return actLocs.some((loc: string) => selectedLocations.includes(loc));
-      }
-      const actLoc = getAssignedLocation(act?._id || act?.id || "1", displayLocations);
-      return selectedLocations.includes(actLoc);
+  const isAllLocationsSelected =
+    displayLocations.length === 0 ||
+    (selectedLocations.length > 0 && selectedLocations.length >= displayLocations.length);
+  const activeLocationQuery = useMemo(() => {
+    if (isAllLocationsSelected || selectedLocations.length === 0) {
+      return undefined;
+    }
+    return selectedLocations.join(",");
+  }, [isAllLocationsSelected, selectedLocations]);
+  useEffect(() => {
+    setCurrentFilters((prev: any) => {
+      if (prev.locations === activeLocationQuery) return prev;
+      return {
+        ...prev,
+        page: 1,
+        locations: activeLocationQuery,
+      };
     });
-  }, [sortedActivities, selectedLocations, displayLocations]);
-
+  }, [activeLocationQuery]);
+  const activities = useMemo(() => {
+    const rawActivities = marketingActivitiesData?.data || [];
+    if (!isGoogleCalendarConnected) {
+      return rawActivities.filter((a: any) => a?.type !== "googleCalendar");
+    }
+    return rawActivities;
+  }, [marketingActivitiesData?.data, isGoogleCalendarConnected]);
+  const allCalendarActivities = useMemo(() => {
+    const rawCalendar =
+      marketingActivitiesData?.calendarActivities ||
+      marketingActivitiesData?.data ||
+      [];
+    if (!isGoogleCalendarConnected) {
+      return rawCalendar.filter((a: any) => a?.type !== "googleCalendar");
+    }
+    return rawCalendar;
+  }, [marketingActivitiesData?.calendarActivities, marketingActivitiesData?.data, isGoogleCalendarConnected]);
+  const filterByLocations = useCallback(
+    (items: any[]) => {
+      if (
+        !displayLocations ||
+        displayLocations.length === 0 ||
+        !selectedLocations ||
+        selectedLocations.length === 0
+      ) {
+        return items;
+      }
+      const isAllSelected = selectedLocations.length >= displayLocations.length;
+      const selectedNormalized = selectedLocations.map((s) =>
+        s.trim().toLowerCase()
+      );
+      return items.filter((act: any) => {
+        const actLocs = (
+          act?.locations && Array.isArray(act.locations) && act.locations.length > 0
+            ? act.locations
+            : act?.location
+              ? [act.location]
+              : act?.patientLocation
+                ? [act.patientLocation]
+                : []
+        ).filter(Boolean);
+        if (actLocs.length > 0) {
+          return actLocs.some((loc: string) =>
+            selectedNormalized.includes(String(loc).trim().toLowerCase())
+          );
+        }
+        return isAllSelected;
+      });
+    },
+    [displayLocations, selectedLocations]
+  );
+  const sortedActivities = useMemo(() => {
+    return [...activities].sort((a: any, b: any) => {
+      const aCreated = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bCreated = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
+      if (aCreated !== bCreated) return bCreated - aCreated;
+      const aDate = a?.startDate ? new Date(a.startDate).getTime() : 0;
+      const bDate = b?.startDate ? new Date(b.startDate).getTime() : 0;
+      return bDate - aDate;
+    });
+  }, [activities]);
+  const locationFilteredActivities = useMemo(() => {
+    return filterByLocations(sortedActivities);
+  }, [sortedActivities, filterByLocations]);
+  const calendarFilteredActivities = useMemo(() => {
+    return filterByLocations(allCalendarActivities);
+  }, [allCalendarActivities, filterByLocations]);
   useEffect(() => {
     marketingActivitiesRefetch();
   }, [isGoogleCalendarConnected, combinedCalendarIds, marketingActivitiesRefetch]);
@@ -184,8 +226,7 @@ const MarketingCalendar = () => {
   };
   const HEADING_DATA = {
     heading: "Marketing Calendar",
-    subHeading:
-      "Centralized view of all marketing activities, social posts, campaigns, and referral activities.",
+    subHeading: "Centralized view of all marketing activities, social posts, campaigns, and referral activities.",
     buttons: [
       {
         label: "Add Activity",
@@ -251,7 +292,7 @@ const MarketingCalendar = () => {
       ]
       : []),
   ];
-  const filteredActivities = locationFilteredActivities.filter((activity: any) => {
+  const filteredActivities = calendarFilteredActivities.filter((activity: any) => {
     if (!selectedDate) return true;
     const selected = new Date(selectedDate);
     selected.setHours(0, 0, 0, 0);
@@ -302,14 +343,15 @@ const MarketingCalendar = () => {
             const activityColor = ACTIVITY_TYPES.find(
               (activityType: any) => activityType.value === activity.type,
             )?.color.value;
-
-            const actLocs =
+            const actLocs = (
               activity.locations && Array.isArray(activity.locations) && activity.locations.length > 0
                 ? activity.locations
                 : activity.location
-                ? [activity.location]
-                : [getAssignedLocation(activity._id, displayLocations)];
-
+                  ? [activity.location]
+                  : activity.patientLocation
+                    ? [activity.patientLocation]
+                    : []
+            ).filter(Boolean);
             return (
               <div
                 key={activity._id}
@@ -337,7 +379,6 @@ const MarketingCalendar = () => {
                     />
                   </div>
                 </div>
-
                 {actLocs.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mb-2">
                     {actLocs.map((loc: string) => {
@@ -459,7 +500,7 @@ const MarketingCalendar = () => {
                     setSelectedActivity(null);
                     setIsModalOpen(true);
                   }}
-                  activities={locationFilteredActivities}
+                  activities={calendarFilteredActivities}
                   displayLocations={displayLocations}
                   selectedLocations={selectedLocations}
                   onToggleLocation={toggleLocation}
@@ -560,14 +601,14 @@ const MarketingCalendar = () => {
             </p>
             {isLoading ? (
               <LoadingState />
-            ) : sortedActivities.length === 0 ? (
+            ) : locationFilteredActivities.length === 0 ? (
               <EmptyState
                 title="No upcoming marketing activities scheduled."
               />
             ) : (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {sortedActivities.map((activity: any) => (
+                  {locationFilteredActivities.map((activity: any) => (
                     <ActivityCard
                       key={activity._id}
                       activity={activity}

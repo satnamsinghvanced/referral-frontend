@@ -1,19 +1,13 @@
 import { Chip } from "@heroui/react";
 import { CAMPAIGN_CATEGORIES } from "../../consts/campaign";
 
-export default function CampaignCategoryChip({
-  category,
-}: {
-  category: string;
-}) {
+export default function CampaignCategoryChip({ category }: { category: string }) {
   const resolvedCategory = CAMPAIGN_CATEGORIES.find(
     (option: any) => option.value === category || option.label === category
   );
   const value = resolvedCategory?.value || category;
   const label = resolvedCategory?.label || category;
-
   let classNames;
-
   switch (value) {
     case "patientFollowUp":
       classNames =

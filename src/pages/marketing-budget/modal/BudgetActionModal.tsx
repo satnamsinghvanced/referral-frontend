@@ -27,6 +27,7 @@ import {
 import { BudgetItem } from "../../../types/budget";
 import TrackSpendModal from "./TrackSpendModal";
 import { FiAlertCircle } from "react-icons/fi";
+import { useState } from "react";
 
 const validationSchema = Yup.object().shape({
   category: Yup.string().required("Category is required."),
@@ -45,7 +46,6 @@ const validationSchema = Yup.object().shape({
   endDate: Yup.string().required("End Date is required."),
 });
 
-import { useState } from "react";
 
 interface BudgetFormValues {
   category: string;
@@ -76,9 +76,7 @@ export default function BudgetActionModal({
 }) {
   const isEdit = !!editedData;
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [pendingValues, setPendingValues] = useState<BudgetFormValues | null>(
-    null,
-  );
+  const [pendingValues, setPendingValues] = useState<BudgetFormValues | null>(null);
   const [confirmationMessage, setConfirmationMessage] = useState("");
   const [isTrackSpendOpen, setIsTrackSpendOpen] = useState(false);
   const { data: latestData } = useBudgetItem(editedData?._id || "");

@@ -3,7 +3,6 @@ import { FLOW_STATUSES } from "../../consts/campaign";
 
 export default function FlowStatusChip({ status }: { status: string }) {
   let classNames;
-
   switch (status) {
     case "inActive":
       classNames =
@@ -18,7 +17,6 @@ export default function FlowStatusChip({ status }: { status: string }) {
         "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800";
       break;
   }
-
   return (
     <Chip
       size="sm"

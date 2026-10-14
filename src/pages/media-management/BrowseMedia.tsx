@@ -4,6 +4,18 @@ import { FiImage, FiSearch, FiUpload } from "react-icons/fi";
 import { LuFolderOpen, LuFolderPlus } from "react-icons/lu";
 import { useState } from "react";
 
+interface BrowseMediaProps {
+  currentFilters: any;
+  onFilterChange: any;
+}
+
+const mockFolders = [
+  { name: "dgdfg", items: 0 },
+  { name: "hawaii pics", items: 0 },
+  { name: "1", items: 0 },
+  { name: "sdasd", items: 0 },
+];
+
 function NewFolderModal({ isOpen, onClose, newFolderName, setNewFolderName, onCreateFolder }: {
   isOpen: boolean;
   onClose: () => void;
@@ -109,11 +121,6 @@ function UploadMediaModal({ isOpen, onClose, onUpload }: { isOpen: boolean; onCl
   );
 }
 
-interface BrowseMediaProps {
-  currentFilters: any;
-  onFilterChange: any;
-}
-
 const FolderItem = ({ name, items }: { name: string; items: number }) => (
   <div className="p-4 border border-foreground/10 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-default-100 transition-colors bg-content1">
     <div className="text-center">
@@ -127,12 +134,7 @@ const FolderItem = ({ name, items }: { name: string; items: number }) => (
     </div>
   </div>
 );
-const mockFolders = [
-  { name: "dgdfg", items: 0 },
-  { name: "hawaii pics", items: 0 },
-  { name: "1", items: 0 },
-  { name: "sdasd", items: 0 },
-];
+
 function BrowseMedia({ currentFilters, onFilterChange }: BrowseMediaProps) {
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);

@@ -4,7 +4,6 @@ import { LEAD_STATUSES } from "../../consts/lead-pipeline";
 
 export default function ReferralStatusChip({ status }: { status: string }) {
   let classNames;
-
   switch (status) {
     case "newLead":
       classNames =
@@ -62,7 +61,6 @@ export default function ReferralStatusChip({ status }: { status: string }) {
         "bg-sky-100 dark:bg-sky-900/30 text-sky-800 dark:text-sky-300";
       break;
   }
-
   return (
     <Chip
       size="sm"

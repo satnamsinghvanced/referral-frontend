@@ -16,7 +16,6 @@ export interface QuillEditorRef {
 const QuillEditor = forwardRef<QuillEditorRef, QuillEditorProps>(function QuillEditor({ value, onChange, placeholder = "Start typing...", enableImage = true }, ref) {
   const editorRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<Quill | null>(null);
-
   useImperativeHandle(ref, () => ({
     insertText(text: string) {
       const quill = quillRef.current;
@@ -31,7 +30,6 @@ const QuillEditor = forwardRef<QuillEditorRef, QuillEditorProps>(function QuillE
       }
     }
   }));
-
   useEffect(() => {
     if (editorRef.current && !quillRef.current) {
       const toolbar = [
@@ -58,7 +56,6 @@ const QuillEditor = forwardRef<QuillEditorRef, QuillEditorProps>(function QuillE
       });
     }
   }, [placeholder, enableImage]);
-
   useEffect(() => {
     const quill = quillRef.current;
     if (!quill) return;

@@ -106,7 +106,6 @@ const isPastDate = (year: number, month: number, day: number, today: Date) => {
   const checkDay = new Date(year, month, day);
   return checkDay.getTime() < currentDay.getTime();
 };
-
 const getGmtOffset = () => {
   const offset = -new Date().getTimezoneOffset();
   const hours = Math.floor(Math.abs(offset) / 60);
@@ -114,7 +113,6 @@ const getGmtOffset = () => {
   const sign = offset >= 0 ? "+" : "-";
   return `GMT${sign}${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
 };
-
 const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const daysOfWeekShort = ["S", "M", "T", "W", "T", "F", "S"];
 const monthNames = [
@@ -131,9 +129,7 @@ const monthNames = [
   "November",
   "December",
 ];
-
 const hoursList = Array.from({ length: 23 }, (_, i) => i + 1);
-
 const CustomCalendar: React.FC<CalendarProps> = ({
   weekendDisabled = false,
   disablePastDates = false,
@@ -153,33 +149,16 @@ const CustomCalendar: React.FC<CalendarProps> = ({
   const [viewMode, setViewMode] = useState<ViewMode>("month");
   const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null);
   const [isMaximized, setIsMaximized] = useState(false);
-
   const [dragStart, setDragStart] = useState<Date | null>(null);
   const [dragEnd, setDragEnd] = useState<Date | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-
-  const [timeDragStart, setTimeDragStart] = useState<{
-    date: Date;
-    hour: number;
-  } | null>(null);
-  const [timeDragEnd, setTimeDragEnd] = useState<{
-    date: Date;
-    hour: number;
-  } | null>(null);
+  const [timeDragStart, setTimeDragStart] = useState<{ date: Date; hour: number; } | null>(null);
+  const [timeDragEnd, setTimeDragEnd] = useState<{ date: Date; hour: number; } | null>(null);
   const [isTimeDragging, setIsTimeDragging] = useState(false);
-
-  const [yearViewPopover, setYearViewPopover] = useState<{
-    date: Date;
-    activities: any[];
-    x: number;
-    y: number;
-  } | null>(null);
-
+  const [yearViewPopover, setYearViewPopover] = useState<{ date: Date; activities: any[]; x: number; y: number; } | null>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
-
   const currentMonth = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
-
   const [mobileMonthIndex, setMobileMonthIndex] = useState<number>(currentDate.getMonth());
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
@@ -238,47 +217,37 @@ const CustomCalendar: React.FC<CalendarProps> = ({
         const endMs = dragEnd.getTime();
         const minMs = Math.min(startMs, endMs);
         const maxMs = Math.max(startMs, endMs);
-
         const start = new Date(minMs);
         const end = new Date(maxMs);
         start.setHours(0, 0, 0, 0);
         end.setHours(23, 59, 0, 0);
-
         const dateActs = getActivitiesForDateObj(start);
         const isSingleClickOnActiveDateInYearView =
           viewMode === "year" && startMs === endMs && dateActs.length > 0;
-
         if (!isSingleClickOnActiveDateInYearView) {
           onRangeSelect?.(start, end);
         }
-
         setDragStart(null);
         setDragEnd(null);
       }
 
       if (isTimeDragging && timeDragStart && timeDragEnd) {
         setIsTimeDragging(false);
-
         const start = new Date(timeDragStart.date);
         start.setHours(timeDragStart.hour, 0, 0, 0);
-
         const end = new Date(timeDragEnd.date);
         end.setHours(timeDragEnd.hour, 0, 0, 0);
-
         if (start.getTime() > end.getTime()) {
           onRangeSelect?.(end, start);
         } else {
           onRangeSelect?.(start, end);
         }
-
         setTimeDragStart(null);
         setTimeDragEnd(null);
       }
     };
-
     window.addEventListener("mouseup", handleGlobalMouseUp);
     return () => window.removeEventListener("mouseup", handleGlobalMouseUp);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isDragging,
     dragStart,
@@ -317,7 +286,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     );
     const curDay = new Date(date).setHours(0, 0, 0, 0);
     if (curDay < minDay || curDay > maxDay) return false;
-
     const minHour = Math.min(timeDragStart.hour, timeDragEnd.hour);
     const maxHour = Math.max(timeDragStart.hour, timeDragEnd.hour);
     return hour >= minHour && hour <= maxHour;
@@ -378,7 +346,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     const day = start.getDay();
     start.setDate(start.getDate() - day);
     start.setHours(0, 0, 0, 0);
-
     return Array.from({ length: 7 }, (_, i) => {
       const d = new Date(start);
       d.setDate(start.getDate() + i);
@@ -457,7 +424,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     dayActivities: any[]
   ): EventLayoutInfo[] => {
     if (!dayActivities || dayActivities.length === 0) return [];
-
     const items = dayActivities.map((act) => {
       const actStart = new Date(act.startDate);
       const actEnd = act.endDate ? new Date(act.endDate) : actStart;
@@ -470,14 +436,12 @@ const CustomCalendar: React.FC<CalendarProps> = ({
       if (endHourFloat <= startHourFloat) {
         endHourFloat = startHourFloat + 1;
       }
-
       const durationHours = Math.max(0.5, endHourFloat - startHourFloat);
       const topPx = Math.max(2, (startHourFloat - 1) * 48);
       const heightPx = Math.max(28, durationHours * 48 - 4);
       const actColor =
         ACTIVITY_TYPES.find((t) => t.value === act.type)?.color.value || "#0284c7";
       const timeRangeStr = formatEventTimeRange(act.startDate, act.endDate);
-
       return {
         activity: act,
         startFloat: startHourFloat,
@@ -490,14 +454,11 @@ const CustomCalendar: React.FC<CalendarProps> = ({
         totalCols: 1,
       };
     });
-
     items.sort((a, b) => {
       if (a.startFloat !== b.startFloat) return a.startFloat - b.startFloat;
       return (b.endFloat - b.startFloat) - (a.endFloat - a.startFloat);
     });
-
     const columns: (typeof items)[] = [];
-
     items.forEach((item) => {
       let placed = false;
       for (let c = 0; c < columns.length; c++) {
@@ -517,7 +478,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
         columns.push([item]);
       }
     });
-
     items.forEach((item) => {
       const overlapping = items.filter(
         (other) =>
@@ -526,7 +486,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
       const maxColIndex = Math.max(...overlapping.map((o) => o.colIndex));
       item.totalCols = Math.max(columns.length, maxColIndex + 1);
     });
-
     return items.map((item) => {
       const widthPercent = (100 / item.totalCols) * 0.92;
       const leftPercent = item.colIndex * (100 / item.totalCols) * 0.92;
@@ -584,7 +543,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
       const isTodayDate = isDateToday(currentDateObj);
       const isSelected = selectedDateKey === dateKey;
       const inDrag = isInDragRange(currentDateObj);
-
       cells.push(
         <div
           key={day}
@@ -703,7 +661,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
         </div>
       );
     }
-
     return (
       <div className={clsx("overflow-x-auto", isMaximized && "h-full flex flex-col")}>
         <div className={clsx("min-w-[650px] sm:min-w-[800px]", isMaximized && "h-full flex flex-col")}>
@@ -728,18 +685,15 @@ const CustomCalendar: React.FC<CalendarProps> = ({
   const renderDayView = () => {
     const dayActivities = getActivitiesForDateObj(currentDate);
     const dayLayouts = computeOverlappingEventsLayout(dayActivities);
-
     const dayName = currentDate
       .toLocaleDateString("en-US", { weekday: "short" })
       .toUpperCase();
     const dayNum = currentDate.getDate();
     const isTodayDay = isDateToday(currentDate);
-
     const now = new Date();
     const isNowToday = isDateToday(currentDate);
     const currentHourFloat = now.getHours() + now.getMinutes() / 60;
     const redLineTop = (currentHourFloat - 1) * 48;
-
     return (
       <div className="flex flex-col w-full overflow-x-auto bg-background">
         <div className="grid grid-cols-[70px_1fr] sm:grid-cols-[100px_1fr] border-b border-foreground/10 bg-gray-50/50 dark:bg-default-100/10">
@@ -772,8 +726,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
             </span>
           </div>
         </div>
-
-
         <div className={clsx("relative min-w-[300px] sm:min-w-[600px] overflow-y-auto scrollbar-thin", isMaximized ? "flex-1 h-full" : "max-h-[620px]")}>
           <div className="relative grid grid-cols-[70px_1fr] sm:grid-cols-[100px_1fr]">
             <div className="border-r border-foreground/10 bg-gray-50/30 dark:bg-default-100/5">
@@ -794,8 +746,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                 );
               })}
             </div>
-
-
             <div className="relative border-b border-foreground/10">
               {hoursList.map((hour) => {
                 const isSelected = isSlotSelected(currentDate, hour);
@@ -818,8 +768,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                   />
                 );
               })}
-
-
               {isNowToday && redLineTop >= 0 && redLineTop <= 23 * 48 && (
                 <div
                   className="absolute left-0 right-0 border-b-2 border-red-500 z-30 flex items-center pointer-events-none"
@@ -828,8 +776,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                   <div className="w-2.5 h-2.5 rounded-full bg-red-500 -ml-1.25 shadow-sm" />
                 </div>
               )}
-
-
               {dayLayouts.map((layout) => (
                 <div
                   key={layout.activity._id}
@@ -864,15 +810,12 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     );
   };
 
-
   const renderWeekView = () => {
     const now = new Date();
     const currentHourFloat = now.getHours() + now.getMinutes() / 60;
     const redLineTop = (currentHourFloat - 1) * 48;
-
     return (
       <div className="flex flex-col w-full overflow-x-auto bg-background">
-
         <div className="grid grid-cols-[60px_repeat(7,1fr)] sm:grid-cols-[90px_repeat(7,1fr)] border-b border-foreground/10 bg-gray-50/50 dark:bg-default-100/10 min-w-[650px] sm:min-w-[800px]">
           <div className="p-2 sm:p-3 text-[10px] sm:text-[11px] font-semibold text-gray-400 dark:text-foreground/40 border-r border-foreground/10 flex items-center justify-center">
             {getGmtOffset()}
@@ -911,7 +854,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
             );
           })}
         </div>
-
         <div className={clsx("relative min-w-[650px] sm:min-w-[800px] overflow-y-auto scrollbar-thin", isMaximized ? "flex-1 h-full" : "max-h-[620px]")}>
           <div className="relative grid grid-cols-[60px_repeat(7,1fr)] sm:grid-cols-[90px_repeat(7,1fr)]">
             <div className="border-r border-foreground/10 bg-gray-50/30 dark:bg-default-100/5">
@@ -932,12 +874,10 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                 );
               })}
             </div>
-
             {weekDays.map((d, colIdx) => {
               const dayActivities = getActivitiesForDateObj(d);
               const dayLayouts = computeOverlappingEventsLayout(dayActivities);
               const isTodayColumn = isDateToday(d);
-
               return (
                 <div
                   key={colIdx}
@@ -964,7 +904,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                       />
                     );
                   })}
-
                   {isTodayColumn && redLineTop >= 0 && redLineTop <= 23 * 48 && (
                     <div
                       className="absolute left-0 right-0 border-b-2 border-red-500 z-30 flex items-center pointer-events-none"
@@ -973,7 +912,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                       <div className="w-2.5 h-2.5 rounded-full bg-red-500 -ml-1.25 shadow-sm" />
                     </div>
                   )}
-
                   {dayLayouts.map((layout) => (
                     <div
                       key={layout.activity._id}
@@ -1017,7 +955,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
       const lastDay = new Date(currentYear, mIdx + 1, 0);
       const daysInMonth = lastDay.getDate();
       const startingDay = firstDay.getDay();
-
       const monthCells = [];
       for (let i = 0; i < startingDay; i++) {
         monthCells.push(<div key={`empty-${i}`} className="w-7 h-7" />);
@@ -1029,7 +966,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
         const hasActs = dayActs.length > 0;
         const isTodayDate = isDateToday(dayDate);
         const inDrag = isInDragRange(dayDate);
-
         monthCells.push(
           <div
             key={day}
@@ -1046,9 +982,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
               start.setHours(0, 0, 0, 0);
               const end = new Date(dayDate);
               end.setHours(23, 59, 0, 0);
-
               onDayClick?.(start.toISOString());
-
               if (hasActs) {
                 const rect = e.currentTarget.getBoundingClientRect();
                 setYearViewPopover({
@@ -1074,7 +1008,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
           </div>
         );
       }
-
       return (
         <div
           key={mName}
@@ -1122,7 +1055,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
               {mName}
             </h4>
           )}
-
           <div className="grid grid-cols-7 gap-1 text-center mb-1">
             {daysOfWeekShort.map((d, i) => (
               <span
@@ -1139,17 +1071,14 @@ const CustomCalendar: React.FC<CalendarProps> = ({
         </div>
       );
     };
-
     return (
       <div className={clsx("relative p-2 sm:p-4 bg-background", isMaximized ? "h-full overflow-y-auto pb-14 scrollbar-thin" : "")}>
-
         <div className="block sm:hidden py-2">
           {renderMonthCard(mobileMonthIndex, true)}
         </div>
         <div className="hidden sm:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 pb-6">
           {monthNames.map((_, mIdx) => renderMonthCard(mIdx, false))}
         </div>
-
         {yearViewPopover && (
           <div
             className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 animate-in fade-in duration-200"
@@ -1160,7 +1089,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
               onClick={(e) => e.stopPropagation()}
               className="bg-white dark:bg-[#182030] border border-slate-200 dark:border-slate-700/80 shadow-2xl rounded-3xl p-6 w-full max-w-md flex flex-col gap-4 animate-in zoom-in-95 duration-200"
             >
-
               <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700/60">
                 <div className="flex items-center gap-3">
                   <div className="flex flex-col items-center justify-center">
@@ -1188,7 +1116,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                     </p>
                   </div>
                 </div>
-
                 <button
                   onClick={() => setYearViewPopover(null)}
                   className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -1196,15 +1123,12 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                   <FiX size={20} />
                 </button>
               </div>
-
-
               <div className="space-y-2.5 max-h-[350px] overflow-y-auto pr-1 scrollbar-thin">
                 {yearViewPopover.activities.map((act) => {
                   const actColor =
                     ACTIVITY_TYPES.find((t) => t.value === act.type)?.color
                       .value || "#0284c7";
                   const timeStr = formatEventTimeRange(act.startDate, act.endDate);
-
                   return (
                     <div
                       key={act._id}
@@ -1228,14 +1152,11 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                           </span>
                         </div>
                       </div>
-
                       <div className="flex items-center gap-2 shrink-0">
                         <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900/60 px-2.5 py-1 rounded-xl border border-slate-200/60 dark:border-slate-700/50">
                           <FiClock size={12} className="text-blue-500" />
                           <span>{timeStr}</span>
                         </div>
-
-
                         <Button
                           size="sm"
                           radius="full"
@@ -1251,8 +1172,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                         >
                           <FiEdit3 size={14} />
                         </Button>
-
-
                         <Button
                           size="sm"
                           radius="full"
@@ -1273,7 +1192,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                   );
                 })}
               </div>
-
               <div className="pt-2 border-t border-slate-200 dark:border-slate-700/60 flex justify-end">
                 <Button
                   size="sm"
@@ -1298,14 +1216,12 @@ const CustomCalendar: React.FC<CalendarProps> = ({
       </div>
     );
   };
-
   const renderHeaderControls = (inPopup: boolean = false) => (
     <div className="relative flex flex-col sm:flex-row items-center justify-between p-2 sm:p-3.5 gap-2 sm:gap-3 border-b border-foreground/10 bg-background w-full">
       <div className="flex sm:hidden items-center justify-between w-full z-10">
         <p className="text-xs sm:text-base font-bold text-gray-800 dark:text-white truncate max-w-[220px]">
           {getHeaderTitle()}
         </p>
-
         <div className="flex items-center gap-1 z-10">
           {!inPopup ? (
             <Button
@@ -1334,7 +1250,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
           )}
         </div>
       </div>
-
       <div className="flex items-center justify-between w-full sm:w-auto gap-2 z-10">
         <div className="flex items-center gap-1 sm:gap-2">
           <Button
@@ -1375,7 +1290,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
             />
           </Button>
         </div>
-
         <div className="flex sm:hidden items-center gap-1.5 justify-end">
           <div className="w-24">
             <Select
@@ -1411,7 +1325,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
           </div>
         </div>
       </div>
-
       <div className="hidden sm:flex items-center gap-2 z-10">
         <div className="w-32">
           <Select
@@ -1445,7 +1358,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
             </SelectItem>
           </Select>
         </div>
-
         {!inPopup ? (
           <Button
             size="sm"
@@ -1472,7 +1384,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
           </Button>
         )}
       </div>
-
       <div className="hidden sm:block absolute left-1/2 -translate-x-1/2 pointer-events-none z-0 max-w-[35%] lg:max-w-[45%] truncate text-center">
         <p className="text-base md:text-lg font-bold text-gray-800 dark:text-white truncate">
           {getHeaderTitle()}
@@ -1485,7 +1396,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     if (!displayLocations || displayLocations.length === 0 || !selectedLocations || !onToggleLocation) {
       return null;
     }
-
     return (
       <div className="px-4 py-3 border-b border-foreground/10 flex items-center gap-3 bg-gray-50/50 dark:bg-content2/30 flex-wrap">
         <span className="text-xs font-bold text-gray-500 dark:text-foreground/50 tracking-wider uppercase select-none">
@@ -1495,7 +1405,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
           {displayLocations.map((locName) => {
             const isSelected = selectedLocations.includes(locName);
             const locColor = getLocationColor(locName);
-
             return (
               <button
                 key={locName}
@@ -1504,17 +1413,16 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                 style={
                   isSelected
                     ? {
-                        backgroundColor: `${locColor}18`,
-                        borderColor: `${locColor}50`,
-                        color: locColor,
-                      }
+                      backgroundColor: `${locColor}18`,
+                      borderColor: `${locColor}50`,
+                      color: locColor,
+                    }
                     : undefined
                 }
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 border transition-all cursor-pointer shadow-2xs select-none ${
-                  isSelected
-                    ? "shadow-xs"
-                    : "bg-gray-100/70 dark:bg-content2 border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 opacity-60 hover:opacity-100"
-                }`}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 border transition-all cursor-pointer shadow-2xs select-none ${isSelected
+                  ? "shadow-xs"
+                  : "bg-gray-100/70 dark:bg-content2 border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 opacity-60 hover:opacity-100"
+                  }`}
               >
                 <span
                   style={
@@ -1522,11 +1430,10 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                       ? { backgroundColor: locColor, borderColor: locColor }
                       : undefined
                   }
-                  className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] shrink-0 transition-colors ${
-                    isSelected
-                      ? "text-white"
-                      : "border border-gray-300 dark:border-gray-600 bg-white dark:bg-content1 text-transparent"
-                  }`}
+                  className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] shrink-0 transition-colors ${isSelected
+                    ? "text-white"
+                    : "border border-gray-300 dark:border-gray-600 bg-white dark:bg-content1 text-transparent"
+                    }`}
                 >
                   {isSelected && <FiCheck className="size-2.5 stroke-[3]" />}
                 </span>
@@ -1538,7 +1445,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
       </div>
     );
   };
-
   return (
     <>
       <div className="w-full rounded-xl overflow-hidden bg-background">
@@ -1549,7 +1455,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
         {viewMode === "week" && renderWeekView()}
         {viewMode === "year" && renderYearView()}
       </div>
-
       {isMaximized && (
         <div
           className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md p-1.5 sm:p-3 md:p-6 flex items-center justify-center animate-in fade-in duration-200"

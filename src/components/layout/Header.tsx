@@ -33,7 +33,6 @@ export default function Header({ hamburgerMenuClick, }: { hamburgerMenuClick: ()
   const hasLocationsPermission = isAdmin || hasPermission("Manage Locations");
   const hasTeamPermission = isAdmin || hasPermission("Manage Team");
   const hasBillingPermission = isAdmin || hasPermission("Manage Billing");
-
   const searchPlaceholder = useMemo(() => {
     if (hasManageReferrals && hasManageReferrers) {
       return "Search referrals and referrers...";
@@ -55,11 +54,9 @@ export default function Header({ hamburgerMenuClick, }: { hamburgerMenuClick: ()
       return true;
     });
   }, [results, isAdmin, hasManageReferrals, hasManageReferrers]);
-
   const handleLogout = () => {
     setIsLogoutModalOpen(true);
   };
-
   const profileMenuItems = useMemo(() => {
     const items: Array<{
       key: string;
@@ -84,7 +81,6 @@ export default function Header({ hamburgerMenuClick, }: { hamburgerMenuClick: ()
     items.push({ key: "logout", label: "Sign Out", icon: LuLogOut, onClick: handleLogout, isDanger: true });
     return items;
   }, [user?.email, hasLocationsPermission, hasTeamPermission, hasBillingPermission, navigate]);
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
@@ -100,7 +96,6 @@ export default function Header({ hamburgerMenuClick, }: { hamburgerMenuClick: ()
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen]);
-
   return (
     <Navbar
       isBordered

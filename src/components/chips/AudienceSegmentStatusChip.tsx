@@ -1,11 +1,7 @@
 import { Chip } from "@heroui/react";
 import { AUDIENCE_SEGMENT_STATUSES } from "../../consts/campaign";
 
-export default function AudienceSegmentStatusChip({
-  status,
-}: {
-  status: string;
-}) {
+export default function AudienceSegmentStatusChip({ status, }: { status: string; }) {
   let classNames;
   switch (status) {
     case "inactive":

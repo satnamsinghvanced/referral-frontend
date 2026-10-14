@@ -32,7 +32,6 @@ const DatePickerWithTimeInput: React.FC<DatePickerWithTimeInputProps> = ({
   timeInputProps = {},
   className = "",
   id,
-  name,
   onBlur,
 }) => {
   const parsed = React.useMemo(() => {

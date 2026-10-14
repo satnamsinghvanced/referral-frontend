@@ -21,7 +21,6 @@ const Profile = ({ className, imgClass, user }: ProfileProps) => {
     />
   );
 };
-
 Profile.defaultProps = {
   className: "",
   imgClass: "object-cover",

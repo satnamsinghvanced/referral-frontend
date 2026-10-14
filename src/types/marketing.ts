@@ -58,11 +58,14 @@ export interface GetActivitiesQuery {
   type?: string;
   page?: number;
   limit?: number;
+  locations?: string;
+  location?: string;
 }
 
 export interface GetActivitiesResponse {
   stats: Stats;
   data: ActivityItem[];
+  calendarActivities?: ActivityItem[];
   pagination: Pagination;
 }
 

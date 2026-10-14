@@ -10,6 +10,14 @@ import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 import { getLocationStyle } from "../../../utils/locationTheme";
 import { useLocationContext } from "../../../providers/LocationContext";
 
+interface ActivityDetailModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  activity: ActivityItem | null;
+  onEdit: () => void;
+  onDelete: () => void;
+}
+
 const DetailItem: React.FC<{ label?: string; value: React.ReactNode; isMultiline?: boolean }> = ({ label, value, isMultiline = false }) => (
   <div className="flex flex-col items-start min-w-0 w-full">
     {label && (
@@ -30,35 +38,21 @@ const DetailItem: React.FC<{ label?: string; value: React.ReactNode; isMultiline
   </div>
 );
 
-interface ActivityDetailModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  activity: ActivityItem | null;
-  onEdit: () => void;
-  onDelete: () => void;
-}
-
 export function ActivityDetailModal({ isOpen, onClose, activity, onEdit, onDelete }: ActivityDetailModalProps) {
   const { locations: contextLocations } = useLocationContext();
-
   if (!activity) return null;
-
   const formattedBudget = `$${activity?.budget !== undefined && activity?.budget !== null ? activity.budget.toLocaleString(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }) : "0"}`;
-
   const formattedReach = activity.reach && activity.reach !== "0"
     ? Number(activity.reach).toLocaleString()
     : activity.reach === "0" ? "0" : "3,200";
-
   const displayLocs = (activity.locations && Array.isArray(activity.locations) && activity.locations.length > 0)
     ? activity.locations
     : (activity.location ? [activity.location] : []);
-
   const activityTypeObj = ACTIVITY_TYPES.find((t: any) => t.value === activity.type);
   const ActivityIcon = activityTypeObj?.icon || FiShare2;
-
   return (
     <Modal
       isOpen={isOpen}
@@ -131,7 +125,6 @@ export function ActivityDetailModal({ isOpen, onClose, activity, onEdit, onDelet
               })}
             </div>
           )}
-
           <div className="grid grid-cols-3 gap-4">
             <DetailItem
               label="Date & Time"
@@ -170,7 +163,6 @@ export function ActivityDetailModal({ isOpen, onClose, activity, onEdit, onDelet
             </div>
           </div>
         </ModalBody>
-
         <ModalFooter className="flex items-center justify-between p-0 pt-2">
           <Button
             color="danger"

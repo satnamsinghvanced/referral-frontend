@@ -8,7 +8,6 @@ export const AuthThemeToggle: React.FC = () => {
   const dispatch = useDispatch();
   const theme = useTypedSelector((state) => state.ui.theme);
   const isDark = theme === "dark";
-
   return (
     <button
       type="button"

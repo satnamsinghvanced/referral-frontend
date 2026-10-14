@@ -1,14 +1,4 @@
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  Select,
-  SelectItem,
-  Textarea,
-} from "@heroui/react";
+import { Button, Input, Modal, ModalBody, ModalContent, ModalHeader, Select, SelectItem, Textarea } from "@heroui/react";
 import { useFormik } from "formik";
 import { useEffect, useMemo } from "react";
 import * as Yup from "yup";
@@ -17,7 +7,6 @@ import { PRIORITY_LEVELS } from "../../../consts/practice";
 import { useCreateActivity, useUpdateActivity } from "../../../hooks/useMarketing";
 import { ActivityItem, ActivityStatus } from "../../../types/marketing";
 import DatePickerWithTimeInput from "../../../components/common/DatePickerWithTimeInput";
-
 import { useCalendarIntegration } from "../../../hooks/integrations/useGoogleCalendar";
 import { usePlanGuard } from "../../../hooks/usePlanGuard";
 import { useLocationContext } from "../../../providers/LocationContext";
@@ -35,6 +24,14 @@ interface ActivityFormValues {
   budget: number | "";
   colorId: string;
   status?: ActivityStatus;
+}
+
+interface ActivityActionsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  defaultStartDate: string | null;
+  defaultEndDate?: string | null;
+  initialData: ActivityItem | null;
 }
 
 export const ActivityValidationSchema = Yup.object().shape({
@@ -80,26 +77,11 @@ export const ActivityValidationSchema = Yup.object().shape({
     .optional(),
 });
 
-interface ActivityActionsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  defaultStartDate: string | null;
-  defaultEndDate?: string | null;
-  initialData: ActivityItem | null;
-}
-
-export default function ActivityActionsModal({
-  isOpen,
-  onClose,
-  defaultStartDate,
-  defaultEndDate,
-  initialData,
-}: ActivityActionsModalProps) {
+export default function ActivityActionsModal({ isOpen, onClose, defaultStartDate, defaultEndDate, initialData }: ActivityActionsModalProps) {
   const { hasAccess } = usePlanGuard();
   const canTrackBudget = hasAccess("budget_tracking");
   const allowedActivityTypes = getFilteredActivityTypes(hasAccess);
   const { locations: contextLocations, selectedLocation: currentSelectedLocation, getLocationColor } = useLocationContext();
-
   const availableLocations = useMemo(() => {
     if (contextLocations && Array.isArray(contextLocations) && contextLocations.length > 0) {
       const names = contextLocations.map((l) => l.name).filter(Boolean) as string[];
@@ -115,7 +97,6 @@ export default function ActivityActionsModal({
       ? [googleCalendarConfig]
       : [];
   const isEditing = !!initialData?._id || !!initialData?.googleId;
-
   const getInitialLocations = (): string[] => {
     if (initialData?.locations && Array.isArray(initialData.locations) && initialData.locations.length > 0) {
       return initialData.locations;
@@ -129,7 +110,6 @@ export default function ActivityActionsModal({
     const defaultLoc = availableLocations[0] || "";
     return defaultLoc ? [defaultLoc] : [];
   };
-
   const initialValues: ActivityFormValues = {
     title: initialData?.title || "",
     // @ts-ignore
@@ -160,12 +140,10 @@ export default function ActivityActionsModal({
         ...values,
         budget: values.budget === "" ? 0 : values.budget,
       };
-
       const selectedLocs =
         values.locations && values.locations.length > 0
           ? values.locations
           : [availableLocations[0]];
-
       if (isEditing) {
         updateActivity(
           {
@@ -216,7 +194,6 @@ export default function ActivityActionsModal({
     } else {
       formik.resetForm();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, initialData, defaultStartDate, defaultEndDate, isEditing]);
   const hasError = (field: keyof typeof initialValues) =>
     formik.touched[field] && formik.errors[field];
@@ -304,7 +281,6 @@ export default function ActivityActionsModal({
                 <ErrorText field="type" />
               </div>
             </div>
-
             <div className="flex flex-col items-start w-full space-y-1">
               <label className="text-xs font-medium text-foreground">
                 Location <span className="text-red-500">*</span>
@@ -324,7 +300,6 @@ export default function ActivityActionsModal({
                     }
                     formik.setFieldTouched("locations", true);
                   };
-
                   return (
                     <button
                       type="button"
@@ -338,12 +313,10 @@ export default function ActivityActionsModal({
                     </button>
                   );
                 })()}
-
                 {availableLocations.map((locName) => {
                   const selectedLocs = formik.values.locations || [];
                   const isSelected = selectedLocs.includes(locName);
                   const locColor = getLocationColor(locName);
-
                   const toggleLoc = () => {
                     if (isSelected) {
                       if (selectedLocs.length <= 1) return;
@@ -356,7 +329,6 @@ export default function ActivityActionsModal({
                     }
                     formik.setFieldTouched("locations", true);
                   };
-
                   return (
                     <button
                       key={locName}
@@ -393,7 +365,6 @@ export default function ActivityActionsModal({
                 </div>
               )}
             </div>
-
             <div className="flex flex-col items-start w-full">
               <div className="flex items-center justify-between w-full mb-1">
                 <label className="text-xs font-medium text-foreground">

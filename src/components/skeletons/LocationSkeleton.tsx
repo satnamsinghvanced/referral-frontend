@@ -4,7 +4,6 @@ import { Skeleton } from "@heroui/react";
 interface LocationSkeletonProps {
   count?: number;
 }
-
 const LocationSkeleton: React.FC<LocationSkeletonProps> = ({ count = 3 }) => {
   return (
     <div className="space-y-3">

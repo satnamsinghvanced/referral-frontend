@@ -15,11 +15,9 @@ const PlanGuard: React.FC<PlanGuardProps> = ({ requiredAccess, children }) => {
   const { data: billingData, isLoading } = useBilling();
   const user = useSelector((state: RootState) => state.auth.user);
   const isSuperAdmin = user?.role === "SuperAdmin";
-
   if (isSuperAdmin) {
     return <>{children}</>;
   }
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -27,13 +25,10 @@ const PlanGuard: React.FC<PlanGuardProps> = ({ requiredAccess, children }) => {
       </div>
     );
   }
-
   const hasAccess = billingData?.access ? billingData.access[requiredAccess] !== false : true;
-
   if (!hasAccess) {
     return <Navigate to="/" replace />;
   }
-
   return <>{children}</>;
 };
 

@@ -7,7 +7,6 @@ interface UrgencyChipProps {
 const UrgencyChip = ({ urgency }: UrgencyChipProps) => {
   const urgencyToLowercase = urgency.toLowerCase();
   let classNames;
-
   switch (urgencyToLowercase) {
     case "new":
       classNames =
@@ -30,7 +29,6 @@ const UrgencyChip = ({ urgency }: UrgencyChipProps) => {
         "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300";
       break;
   }
-
   return (
     <Chip
       size="sm"

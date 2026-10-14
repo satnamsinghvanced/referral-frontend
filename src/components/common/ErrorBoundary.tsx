@@ -17,25 +17,20 @@ export default class ErrorBoundary extends Component<Props, State> {
     hasError: false,
     error: null,
   };
-
   public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
-
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("[ErrorBoundary caught an error]:", error, errorInfo);
   }
-
   private handleReset = () => {
     this.setState({ hasError: false, error: null });
   };
-
   public render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
         return this.props.fallback;
       }
-
       return (
         <div className="flex flex-col items-center justify-center min-h-[300px] p-6 text-center">
           <div className="p-3 bg-danger/10 text-danger rounded-full mb-3">
@@ -68,7 +63,6 @@ export default class ErrorBoundary extends Component<Props, State> {
         </div>
       );
     }
-
     return this.props.children;
   }
 }

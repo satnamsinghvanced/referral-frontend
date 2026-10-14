@@ -54,21 +54,12 @@ const MarketingBudget = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editBudgetItem, setEditBudgetItem] = useState<BudgetItem | null>(null);
   const [deleteBudgetItemId, setDeleteBudgetItemId] = useState("");
-  const [currentFilters, setCurrentFilters] = useState<any>({
-    period: "monthly",
-    page: 1,
-    limit: 10,
-  });
+  const [currentFilters, setCurrentFilters] = useState<any>({ period: "monthly", page: 1, limit: 10 });
   const [showDateRange, setShowDateRange] = useState(false);
-  const [dateRange, setDateRange] = useState({
-    start: "",
-    end: "",
-  });
+  const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(
-    typeof window !== "undefined" ? window.innerWidth : 1200,
-  );
+  const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1200);
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -77,7 +68,6 @@ const MarketingBudget = () => {
   }, []);
 
   const isMobile = windowWidth < 768;
-
   const handleApplyDateRange = () => {
     setCurrentFilters((prev: any) => ({
       ...prev,
@@ -87,7 +77,6 @@ const MarketingBudget = () => {
       page: 1,
     }));
   };
-
   const handleClearDateRange = () => {
     setDateRange({ start: "", end: "" });
     setCurrentFilters((prev: any) => ({
@@ -154,7 +143,6 @@ const MarketingBudget = () => {
   const totalSpent = Number(stats.totalSpent.value);
   const remainingBudget = Number(stats.remainingBudget.value);
   const avgROI = Number(stats.avgROI);
-
   const STAT_CARD_DATA = [
     {
       icon: <LuTarget className="text-blue-600 dark:text-blue-400" />,

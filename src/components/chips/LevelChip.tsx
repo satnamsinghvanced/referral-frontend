@@ -7,7 +7,6 @@ interface LevelChipProps {
 
 const LevelChip = ({ level }: LevelChipProps) => {
   let classNames;
-
   switch (level) {
     case "A-Level":
       classNames =
@@ -26,7 +25,6 @@ const LevelChip = ({ level }: LevelChipProps) => {
         "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-foreground/10 dark:border-gray-700";
       break;
   }
-
   return (
     <Chip
       size="sm"

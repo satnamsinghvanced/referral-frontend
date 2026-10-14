@@ -24,27 +24,23 @@ const maskPhoneForDisplay = (phone: string | undefined): string => {
 export const OtpVerificationModal: React.FC<OtpVerificationModalProps> = ({ isOpen, onClose, isLoading, onVerify, onResend, phoneNumber, error, onClearError, title = "Verify OTP" }) => {
   const [otp, setOtp] = useState("");
   const [countdown, setCountdown] = useState(30);
-
   useEffect(() => {
     if (isOpen) {
       setOtp("");
       setCountdown(30);
     }
   }, [isOpen]);
-
   useEffect(() => {
     if (countdown > 0 && isOpen) {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
       return () => clearTimeout(timer);
     }
   }, [countdown, isOpen]);
-
   const handleVerify = () => {
     if (otp.length === 6) {
       onVerify(otp);
     }
   };
-
   const handleResend = async () => {
     if (onResend) {
       await onResend();

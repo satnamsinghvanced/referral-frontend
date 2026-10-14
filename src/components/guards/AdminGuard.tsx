@@ -13,7 +13,6 @@ const AdminGuard: React.FC<AdminGuardProps> = ({ children }) => {
   const { isLoading, isAdmin } = useRolePermissions();
   const user = useSelector((state: RootState) => state.auth.user);
   const isSuperAdmin = user?.role === "SuperAdmin";
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -21,11 +20,9 @@ const AdminGuard: React.FC<AdminGuardProps> = ({ children }) => {
       </div>
     );
   }
-
   if (!isAdmin && !isSuperAdmin) {
     return <Navigate to="/" replace />;
   }
-
   return <>{children}</>;
 };
 

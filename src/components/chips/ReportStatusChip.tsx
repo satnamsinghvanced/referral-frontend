@@ -8,7 +8,6 @@ export default function ReportStatusChip({
   status: ReportStatus | string;
 }) {
   let classNames = "";
-
   switch (status) {
     case "processing":
     case "generating":
@@ -28,7 +27,6 @@ export default function ReportStatusChip({
         "bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-800";
       break;
   }
-
   return (
     <Chip
       size="sm"

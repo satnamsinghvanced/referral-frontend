@@ -16,7 +16,6 @@ const Logo: React.FC<LogoProps> = ({ iconOnly = false, ...props }) => {
       fill: "#f26724",
     },
   };
-
   if (iconOnly) {
     return (
       <svg
@@ -71,7 +70,6 @@ const Logo: React.FC<LogoProps> = ({ iconOnly = false, ...props }) => {
       </svg>
     );
   }
-
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -163,7 +161,6 @@ const Logo: React.FC<LogoProps> = ({ iconOnly = false, ...props }) => {
             d="m216.19,127.21c3.9-.08,5.75-2.55,4.13-5.51-1.62-2.97-6.09-5.3-9.99-5.22-3.9.08-5.75,2.54-4.13,5.52,1.61,2.96,6.09,5.3,9.99,5.22Z"
           />
         </g>
-
         <g>
           <path
             style={styles.cls2}
