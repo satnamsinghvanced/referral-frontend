@@ -19,6 +19,7 @@ export interface TeamMember {
   permissions?: any[];
   isVerified?: boolean;
   termsAccepted?: boolean;
+  isDeleted?: boolean;
   userAddonId?: {
     _id: string;
     title: string;

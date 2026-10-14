@@ -39,9 +39,9 @@ interface ActivityDetailModalProps {
 }
 
 export function ActivityDetailModal({ isOpen, onClose, activity, onEdit, onDelete }: ActivityDetailModalProps) {
-  if (!activity) return null;
-
   const { locations: contextLocations } = useLocationContext();
+
+  if (!activity) return null;
 
   const formattedBudget = `$${activity?.budget !== undefined && activity?.budget !== null ? activity.budget.toLocaleString(undefined, {
     minimumFractionDigits: 0,
@@ -52,8 +52,9 @@ export function ActivityDetailModal({ isOpen, onClose, activity, onEdit, onDelet
     ? Number(activity.reach).toLocaleString()
     : activity.reach === "0" ? "0" : "3,200";
 
-  const locName = activity.location || (activity.locations && activity.locations.length > 0 ? activity.locations[0] : null);
-  const { dotColor } = getLocationStyle(locName || undefined, contextLocations);
+  const displayLocs = (activity.locations && Array.isArray(activity.locations) && activity.locations.length > 0)
+    ? activity.locations
+    : (activity.location ? [activity.location] : []);
 
   const activityTypeObj = ACTIVITY_TYPES.find((t: any) => t.value === activity.type);
   const ActivityIcon = activityTypeObj?.icon || FiShare2;
@@ -100,29 +101,34 @@ export function ActivityDetailModal({ isOpen, onClose, activity, onEdit, onDelet
           </p>
         </ModalHeader>
         <ModalBody className="gap-4 px-0 py-4">
-          {locName && (
-            <div>
-              {activity.isDefaultLocation ? (
-                <span
-                  title="Auto-assigned to default location because no exact match was found"
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300"
-                >
-                  <HiOutlineLocationMarker className="size-3.5 text-amber-500 shrink-0" />
-                  <span>{locName}</span>
-                </span>
-              ) : (
-                <span
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border"
-                  style={{
-                    backgroundColor: `${dotColor}18`,
-                    borderColor: `${dotColor}50`,
-                    color: dotColor,
-                  }}
-                >
-                  <HiOutlineLocationMarker className="size-3.5 shrink-0" style={{ color: dotColor }} />
-                  <span>{locName}</span>
-                </span>
-              )}
+          {displayLocs.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {displayLocs.map((loc) => {
+                const { dotColor } = getLocationStyle(loc, contextLocations);
+                return activity.isDefaultLocation ? (
+                  <span
+                    key={loc}
+                    title="Auto-assigned to default location because no exact match was found"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300"
+                  >
+                    <HiOutlineLocationMarker className="size-3.5 text-amber-500 shrink-0" />
+                    <span>{loc}</span>
+                  </span>
+                ) : (
+                  <span
+                    key={loc}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border"
+                    style={{
+                      backgroundColor: `${dotColor}18`,
+                      borderColor: `${dotColor}50`,
+                      color: dotColor,
+                    }}
+                  >
+                    <HiOutlineLocationMarker className="size-3.5 shrink-0" style={{ color: dotColor }} />
+                    <span>{loc}</span>
+                  </span>
+                );
+              })}
             </div>
           )}
 

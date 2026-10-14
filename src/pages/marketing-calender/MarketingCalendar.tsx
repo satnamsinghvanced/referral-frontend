@@ -80,13 +80,13 @@ const MarketingCalendar = () => {
   });
   const { mutate: deleteActivity, isPending: isDeletePending } =
     useDeleteActivity();
-  const rawActivities = marketingActivitiesData?.data || [];
   const activities = useMemo(() => {
+    const rawActivities = marketingActivitiesData?.data || [];
     if (!isGoogleCalendarConnected) {
       return rawActivities.filter((a: any) => a?.type !== "googleCalendar");
     }
     return rawActivities;
-  }, [rawActivities, isGoogleCalendarConnected]);
+  }, [marketingActivitiesData?.data, isGoogleCalendarConnected]);
   const sortedActivities = useMemo(() => {
     return [...activities].sort((a: any, b: any) => {
       const aCreated = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
@@ -132,21 +132,28 @@ const MarketingCalendar = () => {
 
   const locationFilteredActivities = useMemo(() => {
     return sortedActivities.filter((act: any) => {
-      const actLoc =
-        act?.location ||
-        (act?.locations && act.locations[0]) ||
-        act?.patientLocation ||
-        getAssignedLocation(act?._id || act?.id || "1", displayLocations);
+      const actLocs =
+        act?.locations && Array.isArray(act.locations) && act.locations.length > 0
+          ? act.locations
+          : act?.location
+          ? [act.location]
+          : act?.patientLocation
+          ? [act.patientLocation]
+          : [];
+
+      if (actLocs.length > 0) {
+        return actLocs.some((loc: string) => selectedLocations.includes(loc));
+      }
+      const actLoc = getAssignedLocation(act?._id || act?.id || "1", displayLocations);
       return selectedLocations.includes(actLoc);
     });
   }, [sortedActivities, selectedLocations, displayLocations]);
 
   useEffect(() => {
     marketingActivitiesRefetch();
-  }, [isGoogleCalendarConnected, combinedCalendarIds]);
+  }, [isGoogleCalendarConnected, combinedCalendarIds, marketingActivitiesRefetch]);
   const pagination = marketingActivitiesData?.pagination;
   const stats = marketingActivitiesData?.stats;
-  const isFiltered = currentFilters.search || currentFilters.type !== "all";
   const handleFilterChange = useCallback((key: string, value: any) => {
     setCurrentFilters((prev: any) => ({ ...prev, page: 1, [key]: value }));
   }, []);
@@ -296,11 +303,12 @@ const MarketingCalendar = () => {
               (activityType: any) => activityType.value === activity.type,
             )?.color.value;
 
-            const locName =
-              activity.location ||
-              (activity.locations && activity.locations[0]) ||
-              getAssignedLocation(activity._id, displayLocations);
-            const { dotColor } = getLocationStyle(locName, contextLocations);
+            const actLocs =
+              activity.locations && Array.isArray(activity.locations) && activity.locations.length > 0
+                ? activity.locations
+                : activity.location
+                ? [activity.location]
+                : [getAssignedLocation(activity._id, displayLocations)];
 
             return (
               <div
@@ -330,32 +338,37 @@ const MarketingCalendar = () => {
                   </div>
                 </div>
 
-                {locName && (
-                  <div className="mb-2">
-                    {activity.isDefaultLocation ? (
-                      <span
-                        title="Auto-assigned to default location because no exact match was found"
-                        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300"
-                      >
-                        <span className="w-2 h-2 rounded-full shrink-0 bg-amber-500" />
-                        <span>{locName}</span>
-                      </span>
-                    ) : (
-                      <span
-                        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border"
-                        style={{
-                          backgroundColor: `${dotColor}18`,
-                          borderColor: `${dotColor}50`,
-                          color: dotColor,
-                        }}
-                      >
+                {actLocs.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {actLocs.map((loc: string) => {
+                      const { dotColor } = getLocationStyle(loc, contextLocations);
+                      return activity.isDefaultLocation ? (
                         <span
-                          className="w-2 h-2 rounded-full shrink-0"
-                          style={{ backgroundColor: dotColor }}
-                        />
-                        <span>{locName}</span>
-                      </span>
-                    )}
+                          key={loc}
+                          title="Auto-assigned to default location because no exact match was found"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300"
+                        >
+                          <span className="w-2 h-2 rounded-full shrink-0 bg-amber-500" />
+                          <span className="truncate max-w-[130px]">{loc}</span>
+                        </span>
+                      ) : (
+                        <span
+                          key={loc}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border"
+                          style={{
+                            backgroundColor: `${dotColor}18`,
+                            borderColor: `${dotColor}50`,
+                            color: dotColor,
+                          }}
+                        >
+                          <span
+                            className="w-2 h-2 rounded-full shrink-0"
+                            style={{ backgroundColor: dotColor }}
+                          />
+                          <span className="truncate max-w-[130px]">{loc}</span>
+                        </span>
+                      );
+                    })}
                   </div>
                 )}
                 <div className="text-sm text-gray-600 dark:text-foreground/60 space-y-2 p-0">

@@ -5,9 +5,8 @@ import { HiOutlineUserAdd } from "react-icons/hi";
 import { LuUsers } from "react-icons/lu";
 import { MdCheck } from "react-icons/md";
 import { useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "../../../components/common/DeleteConfirmationModal";
-import IntegrationWarningBanner from "../../../components/common/IntegrationWarningBanner";
 
 import {
   useDeleteTeamMember,
@@ -17,7 +16,6 @@ import { TeamMember } from "../../../services/settings/team";
 import PendingTeamMembers from "./PendingTeamMembers";
 import TeamMemberActionModal, { TeamFormValues } from "./TeamMemberActionModal";
 import TeamMemberResetPasswordModal from "./TeamMemberResetPasswordModal";
-import { useFetchEmailIntegration } from "../../../hooks/integrations/useEmailMarketing";
 import { LoadingState } from "../../../components/common/LoadingState";
 import Pagination from "../../../components/common/Pagination";
 import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
@@ -71,8 +69,8 @@ const Team: React.FC = () => {
       m.email?.toLowerCase() !== mainAdmin?.email?.toLowerCase() &&
       m._id !== mainAdmin?._id &&
       m._id !== mainAdmin?.userId &&
-      m.status !== "deleted" &&
-      !(m as any).isDeleted
+      m.status?.toLowerCase() !== "deleted" &&
+      !m.isDeleted
   );
 
   const sortedMembers = useMemo(() => {
@@ -107,7 +105,6 @@ const Team: React.FC = () => {
 
   const isUserLimitReached = userAccountsLimit !== -1 && currentTeamCount >= userAccountsLimit;
   const isStarterPlanWithoutExtraSeats = planPrice === 199 && userAccountsLimit <= 1;
-  const isStarterPlan = planPrice === 199;
 
   usePaginationAdjustment({
     totalPages: membersData?.totalPages || 0,
@@ -123,18 +120,7 @@ const Team: React.FC = () => {
   const { mutate: deleteMember, isPending: deleteIsPending } =
     useDeleteTeamMember();
 
-  const { data: emailExistingConfig, isLoading: isEmailConfigLoading } =
-    useFetchEmailIntegration();
 
-  const emailConfigsList = Array.isArray(emailExistingConfig)
-    ? emailExistingConfig
-    : emailExistingConfig
-      ? [emailExistingConfig]
-      : [];
-
-  const emailConfig = emailConfigsList.find(
-    (cfg: any) => cfg.provider !== "SendGrid"
-  );
 
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [editMemberId, setEditMemberId] = useState<string>("");
@@ -200,7 +186,7 @@ const Team: React.FC = () => {
   };
   return (
     <div className="space-y-4 md:space-y-5">
-      {(planPrice === 199 || emailConfig?.status === "Connected") && isUserLimitReached && (
+      {isUserLimitReached && (
         <div className="p-4 rounded-xl border border-red-200 bg-red-50 dark:bg-red-950/20 text-red-900 dark:text-red-300 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
           <div>
             <h4 className="font-semibold text-sm">
@@ -224,14 +210,6 @@ const Team: React.FC = () => {
             Upgrade Plan
           </Button>
         </div>
-      )}
-      {!isStarterPlan && !isEmailConfigLoading && emailConfig?.status !== "Connected" && (
-        <IntegrationWarningBanner
-          platformName="Email Marketing Platform"
-          integrationKey="email"
-          message="Email Marketing Platform is not connected. You can't invite team members until you connect your Email Marketing Platform."
-          buttonText="Connect Email"
-        />
       )}
 
       <Card
@@ -458,7 +436,7 @@ const Team: React.FC = () => {
         </CardBody>
       </Card>
       <PendingTeamMembers />
-      {(isStarterPlan || emailConfig?.status === "Connected") && !isUserLimitReached && (
+      {!isUserLimitReached && (
         <Button
           variant="bordered"
           size="sm"

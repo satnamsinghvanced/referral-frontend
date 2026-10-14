@@ -9,7 +9,6 @@ import {
   SelectItem,
   Textarea,
 } from "@heroui/react";
-import { getLocalTimeZone, now } from "@internationalized/date";
 import { useFormik } from "formik";
 import { useEffect, useMemo } from "react";
 import * as Yup from "yup";
@@ -22,7 +21,6 @@ import DatePickerWithTimeInput from "../../../components/common/DatePickerWithTi
 import { useCalendarIntegration } from "../../../hooks/integrations/useGoogleCalendar";
 import { usePlanGuard } from "../../../hooks/usePlanGuard";
 import { useLocationContext } from "../../../providers/LocationContext";
-import { getLocationStyle } from "../../../utils/locationTheme";
 
 interface ActivityFormValues {
   title: string;
@@ -184,32 +182,25 @@ export default function ActivityActionsModal({
           },
         );
       } else {
-        let completedCount = 0;
-        selectedLocs.forEach((loc) => {
-          // @ts-ignore
-          createActivity(
-            {
-              ...submitValues,
-              location: loc,
-              locations: [loc],
-              colorId:
-                ACTIVITY_TYPES.find(
-                  (activity) => activity.value === values.type,
-                )?.color.id.toString() || "1",
-              calendarId: configs[0]?._id,
-              googleCalendarId: configs[0]?.calendarId,
-            } as any,
-            {
-              onSuccess: () => {
-                completedCount++;
-                if (completedCount === selectedLocs.length) {
-                  onClose();
-                  formik.resetForm();
-                }
-              },
+        createActivity(
+          {
+            ...submitValues,
+            location: selectedLocs[0] || availableLocations[0] || "",
+            locations: selectedLocs,
+            colorId:
+              ACTIVITY_TYPES.find(
+                (activity) => activity.value === values.type,
+              )?.color.id.toString() || "1",
+            calendarId: configs[0]?._id,
+            googleCalendarId: configs[0]?.calendarId,
+          } as any,
+          {
+            onSuccess: () => {
+              onClose();
+              formik.resetForm();
             },
-          );
-        });
+          },
+        );
       }
     },
   });
@@ -225,6 +216,7 @@ export default function ActivityActionsModal({
     } else {
       formik.resetForm();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, initialData, defaultStartDate, defaultEndDate, isEditing]);
   const hasError = (field: keyof typeof initialValues) =>
     formik.touched[field] && formik.errors[field];

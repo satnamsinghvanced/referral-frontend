@@ -16,16 +16,11 @@ interface ActivityCardProps {
 
 export function ActivityCard({ activity, onView, onDelete }: ActivityCardProps) {
   const {
-    _id,
     title,
     description,
     startDate,
-    endDate,
-    time,
-    colorId,
     type = "googleCalendar",
     status,
-    priority,
     budget,
     reach,
     location,
@@ -39,8 +34,9 @@ export function ActivityCard({ activity, onView, onDelete }: ActivityCardProps) 
   )?.color.value;
 
   const { locations: contextLocations } = useLocationContext();
-  const locName = location || (locations && locations.length > 0 ? locations[0] : null);
-  const { dotColor } = getLocationStyle(locName || undefined, contextLocations);
+  const displayLocs = (locations && Array.isArray(locations) && locations.length > 0)
+    ? locations
+    : (location ? [location] : []);
 
   return (
     <div
@@ -64,32 +60,37 @@ export function ActivityCard({ activity, onView, onDelete }: ActivityCardProps) 
         </div>
       </div>
 
-      {locName && (
-        <div className="mb-2">
-          {activity.isDefaultLocation ? (
-            <span
-              title="Auto-assigned to default location because no exact match was found"
-              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300"
-            >
-              <span className="w-2 h-2 rounded-full shrink-0 bg-amber-500" />
-              <span>{locName}</span>
-            </span>
-          ) : (
-            <span
-              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border"
-              style={{
-                backgroundColor: `${dotColor}18`,
-                borderColor: `${dotColor}50`,
-                color: dotColor,
-              }}
-            >
+      {displayLocs.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-2">
+          {displayLocs.map((loc) => {
+            const { dotColor } = getLocationStyle(loc, contextLocations);
+            return activity.isDefaultLocation ? (
               <span
-                className="w-2 h-2 rounded-full shrink-0"
-                style={{ backgroundColor: dotColor }}
-              />
-              <span>{locName}</span>
-            </span>
-          )}
+                key={loc}
+                title="Auto-assigned to default location because no exact match was found"
+                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300"
+              >
+                <span className="w-2 h-2 rounded-full shrink-0 bg-amber-500" />
+                <span className="truncate max-w-[150px]">{loc}</span>
+              </span>
+            ) : (
+              <span
+                key={loc}
+                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border"
+                style={{
+                  backgroundColor: `${dotColor}18`,
+                  borderColor: `${dotColor}50`,
+                  color: dotColor,
+                }}
+              >
+                <span
+                  className="w-2 h-2 rounded-full shrink-0"
+                  style={{ backgroundColor: dotColor }}
+                />
+                <span className="truncate max-w-[150px]">{loc}</span>
+              </span>
+            );
+          })}
         </div>
       )}
 

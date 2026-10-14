@@ -2,7 +2,6 @@ import { Button, Card, CardBody, CardHeader } from "@heroui/react";
 import React, { useState } from "react";
 import { FiMail, FiTrash2 } from "react-icons/fi";
 import EmptyState from "../../../components/common/EmptyState";
-import TeamSkeleton from "../../../components/skeletons/TeamSkeleton";
 import DeleteConfirmationModal from "../../../components/common/DeleteConfirmationModal";
 import {
   useFetchPendingTeamMembers,
@@ -35,7 +34,9 @@ const PendingTeamMembers = () => {
   const { data: pendingMembersData, isLoading: membersIsLoading } =
     useFetchPendingTeamMembers(filters);
 
-  const pendingMembers = pendingMembersData?.data;
+  const pendingMembers = pendingMembersData?.data?.filter(
+    (m: TeamMember) => m.status?.toLowerCase() === "pending" && !m.isDeleted && m.status?.toLowerCase() !== "deleted"
+  );
 
   usePaginationAdjustment({
     totalPages: pendingMembersData?.totalPages || 0,
